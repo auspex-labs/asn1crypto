@@ -1,7 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
-
 def fill_width(bytes_, width):
     """
     Ensure a byte string representing a positive integer is a specific width
@@ -18,5 +14,5 @@ def fill_width(bytes_, width):
     """
 
     while len(bytes_) < width:
-        bytes_ = b'\x00' + bytes_
+        bytes_ = b"\x00" + bytes_
     return bytes_

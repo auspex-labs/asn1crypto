@@ -1,20 +1,15 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
-import ast
 import _ast
-import unittest
+import ast
 import os
 import sys
+import unittest
 
 import asn1crypto as module
-
 
 # This handles situations where an import is importing a function from a
 # dotted path, e.g. "from . import ident", and ident is a function, not a
 # submodule
-MOD_MAP = {
-}
+MOD_MAP = {}
 
 
 def add_mod(mod_name, imports):
@@ -55,9 +50,9 @@ def walk_ast(parent_node, modname, imports):
                 if modname == module.__name__:
                     base_mod = module.__name__
                 else:
-                    base_mod = '.'.join(modname.split('.')[:-node.level])
+                    base_mod = ".".join(modname.split(".")[: -node.level])
                 if node.module:
-                    base_mod += '.' + node.module
+                    base_mod += "." + node.module
             else:
                 base_mod = node.module
 
@@ -66,7 +61,7 @@ def walk_ast(parent_node, modname, imports):
 
             if node.level > 0 and not node.module:
                 for n in node.names:
-                    add_mod(base_mod + '.' + n.name, imports)
+                    add_mod(base_mod + "." + n.name, imports)
             else:
                 add_mod(base_mod, imports)
 
@@ -98,7 +93,6 @@ def walk_ast(parent_node, modname, imports):
 
 
 class InitTests(unittest.TestCase):
-
     def test_load_order(self):
         deps = {}
 
@@ -106,35 +100,34 @@ class InitTests(unittest.TestCase):
         files = []
         for root, dnames, fnames in os.walk(mod_root):
             for f in fnames:
-                if f.endswith('.py'):
+                if f.endswith(".py"):
                     full_path = os.path.join(root, f)
-                    rel_path = full_path.replace(mod_root + os.sep, '')
+                    rel_path = full_path.replace(mod_root + os.sep, "")
                     files.append((full_path, rel_path))
 
         for full_path, rel_path in sorted(files):
-            with open(full_path, 'rb') as f:
+            with open(full_path, "rb") as f:
                 full_code = f.read()
-                if sys.version_info >= (3,):
-                    full_code = full_code.decode('utf-8')
+                full_code = full_code.decode("utf-8")
 
-            modname = rel_path.replace('.py', '').replace(os.sep, '.')
-            if modname == '__init__':
+            modname = rel_path.replace(".py", "").replace(os.sep, ".")
+            if modname == "__init__":
                 modname = module.__name__
             else:
-                modname = '%s.%s' % (module.__name__, modname)
+                modname = "{}.{}".format(module.__name__, modname)
 
-            if sys.version_info < (3,) and sys.platform == 'win32' and b'\r\n' in full_code:
-                full_code = full_code.replace(b'\r\n', b'\n')
+            if sys.version_info < (3,) and sys.platform == "win32" and b"\r\n" in full_code:
+                full_code = full_code.replace(b"\r\n", b"\n")
 
-            imports = set([])
+            imports = set()
             module_node = ast.parse(full_code, filename=full_path)
             walk_ast(module_node, modname, imports)
 
             deps[modname] = imports
 
         load_order = module.load_order()
-        prev = set([])
+        prev = set()
         for mod in load_order:
             self.assertEqual(True, mod in deps)
-            self.assertEqual((mod, set([])), (mod, deps[mod] - prev))
+            self.assertEqual((mod, set()), (mod, deps[mod] - prev))
             prev.add(mod)

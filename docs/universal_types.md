@@ -1,6 +1,6 @@
 # Universal Types with BER/DER Decoder and DER Encoder
 
-The *asn1crypto* library is a combination of universal type classes that
+The _asn1crypto_ library is a combination of universal type classes that
 implement BER/DER decoding and DER encoding, a PEM encoder and decoder, and a
 number of pre-built cryptographic type classes. This document covers the
 universal type classes.
@@ -10,23 +10,23 @@ For a general overview of ASN.1 as used in cryptography, please see
 
 This page contains the following sections:
 
- - [Universal Types](#universal-types)
- - [Basic Usage](#basic-usage)
- - [Sequence](#sequence)
- - [Set](#set)
- - [SequenceOf](#sequenceof)
- - [SetOf](#setof)
- - [Integer](#integer)
- - [Enumerated](#enumerated)
- - [ObjectIdentifier](#objectidentifier)
- - [BitString](#bitstring)
- - [Strings](#strings)
- - [UTCTime](#utctime)
- - [GeneralizedTime](#generalizedtime)
- - [Choice](#choice)
- - [Any](#any)
- - [Specification via OID](#specification-via-oid)
- - [Explicit and Implicit Tagging](#explicit-and-implicit-tagging)
+- [Universal Types](#universal-types)
+- [Basic Usage](#basic-usage)
+- [Sequence](#sequence)
+- [Set](#set)
+- [SequenceOf](#sequenceof)
+- [SetOf](#setof)
+- [Integer](#integer)
+- [Enumerated](#enumerated)
+- [ObjectIdentifier](#objectidentifier)
+- [BitString](#bitstring)
+- [Strings](#strings)
+- [UTCTime](#utctime)
+- [GeneralizedTime](#generalizedtime)
+- [Choice](#choice)
+- [Any](#any)
+- [Specification via OID](#specification-via-oid)
+- [Explicit and Implicit Tagging](#explicit-and-implicit-tagging)
 
 ## Universal Types
 
@@ -34,40 +34,40 @@ For general purpose ASN.1 parsing, the `asn1crypto.core` module is used. It
 contains the following classes, that parse, represent and serialize all of the
 ASN.1 universal types:
 
-| Class              | Native Type                            | Implementation Notes                 |
-| ------------------ | -------------------------------------- | ------------------------------------ |
-| `Boolean`          | `bool`                                 |                                      |
-| `Integer`          | `int`                                  | may be `long` on Python 2            |
-| `BitString`        | `tuple` of `int` or `set` of `unicode` | `set` used if `_map` present         |
-| `OctetString`      | `bytes` (`str`)                        |                                      |
-| `Null`             | `None`                                 |                                      |
-| `ObjectIdentifier` | `str` (`unicode`)                      | string is dotted integer format      |
-| `ObjectDescriptor` |                                        | no native conversion                 |
-| `InstanceOf`       |                                        | no native conversion                 |
-| `Real`             |                                        | no native conversion                 |
-| `Enumerated`       | `str` (`unicode`)                      | `_map` must be set                   |
-| `UTF8String`       | `str` (`unicode`)                      |                                      |
-| `RelativeOid`      | `str` (`unicode`)                      | string is dotted integer format      |
-| `Sequence`         | `OrderedDict`                          |                                      |
-| `SequenceOf`       | `list`                                 |                                      |
-| `Set`              | `OrderedDict`                          |                                      |
-| `SetOf`            | `list`                                 |                                      |
-| `EmbeddedPdv`      | `OrderedDict`                          | no named field parsing               |
-| `NumericString`    | `str` (`unicode`)                      | no charset limitations               |
-| `PrintableString`  | `str` (`unicode`)                      | no charset limitations               |
-| `TeletexString`    | `str` (`unicode`)                      |                                      |
-| `VideotexString`   | `bytes` (`str`)                        | no unicode conversion                |
-| `IA5String`        | `str` (`unicode`)                      |                                      |
-| `UTCTime`          | `datetime.datetime`                    |                                      |
-| `GeneralizedTime`  | `datetime.datetime`                    | treated as UTC when no timezone      |
-| `GraphicString`    | `str` (`unicode`)                      | unicode conversion as latin1         |
-| `VisibleString`    | `str` (`unicode`)                      | no charset limitations               |
-| `GeneralString`    | `str` (`unicode`)                      | unicode conversion as latin1         |
-| `UniversalString`  | `str` (`unicode`)                      |                                      |
-| `CharacterString`  | `str` (`unicode`)                      | unicode conversion as latin1         |
-| `BMPString`        | `str` (`unicode`)                      |                                      |
+| Class              | Native Type                            | Implementation Notes            |
+| ------------------ | -------------------------------------- | ------------------------------- |
+| `Boolean`          | `bool`                                 |                                 |
+| `Integer`          | `int`                                  | may be `long` on Python 2       |
+| `BitString`        | `tuple` of `int` or `set` of `unicode` | `set` used if `_map` present    |
+| `OctetString`      | `bytes` (`str`)                        |                                 |
+| `Null`             | `None`                                 |                                 |
+| `ObjectIdentifier` | `str` (`unicode`)                      | string is dotted integer format |
+| `ObjectDescriptor` |                                        | no native conversion            |
+| `InstanceOf`       |                                        | no native conversion            |
+| `Real`             |                                        | no native conversion            |
+| `Enumerated`       | `str` (`unicode`)                      | `_map` must be set              |
+| `UTF8String`       | `str` (`unicode`)                      |                                 |
+| `RelativeOid`      | `str` (`unicode`)                      | string is dotted integer format |
+| `Sequence`         | `OrderedDict`                          |                                 |
+| `SequenceOf`       | `list`                                 |                                 |
+| `Set`              | `OrderedDict`                          |                                 |
+| `SetOf`            | `list`                                 |                                 |
+| `EmbeddedPdv`      | `OrderedDict`                          | no named field parsing          |
+| `NumericString`    | `str` (`unicode`)                      | no charset limitations          |
+| `PrintableString`  | `str` (`unicode`)                      | no charset limitations          |
+| `TeletexString`    | `str` (`unicode`)                      |                                 |
+| `VideotexString`   | `bytes` (`str`)                        | no unicode conversion           |
+| `IA5String`        | `str` (`unicode`)                      |                                 |
+| `UTCTime`          | `datetime.datetime`                    |                                 |
+| `GeneralizedTime`  | `datetime.datetime`                    | treated as UTC when no timezone |
+| `GraphicString`    | `str` (`unicode`)                      | unicode conversion as latin1    |
+| `VisibleString`    | `str` (`unicode`)                      | no charset limitations          |
+| `GeneralString`    | `str` (`unicode`)                      | unicode conversion as latin1    |
+| `UniversalString`  | `str` (`unicode`)                      |                                 |
+| `CharacterString`  | `str` (`unicode`)                      | unicode conversion as latin1    |
+| `BMPString`        | `str` (`unicode`)                      |                                 |
 
-For *Native Type*, the Python 3 type is listed first, with the Python 2 type
+For _Native Type_, the Python 3 type is listed first, with the Python 2 type
 in parentheses.
 
 As mentioned next to some of the types, value parsing may not be implemented
@@ -80,11 +80,11 @@ In addition, there are a few overridden types where various specifications use
 a `BitString` or `OctetString` type to represent a different type. These
 include:
 
-| Class                | Native Type         | Implementation Notes            |
-| -------------------- | ------------------- | ------------------------------- |
-| `OctetBitString`     | `bytes` (`str`)     |                                 |
-| `IntegerBitString`   | `int`               | may be `long` on Python 2       |
-| `IntegerOctetString` | `int`               | may be `long` on Python 2       |
+| Class                | Native Type     | Implementation Notes      |
+| -------------------- | --------------- | ------------------------- |
+| `OctetBitString`     | `bytes` (`str`) |                           |
+| `IntegerBitString`   | `int`           | may be `long` on Python 2 |
+| `IntegerOctetString` | `int`           | may be `long` on Python 2 |
 
 For situations where the DER encoded bytes from one type is embedded in another,
 the `ParsableOctetString` and `ParsableOctetBitString` classes exist. These
@@ -135,7 +135,7 @@ parsed = Sequence.load(der_byte_string)
 serialized = parsed.dump()
 ```
 
-By default, *asn1crypto* tries to be efficient and caches serialized data for
+By default, _asn1crypto_ tries to be efficient and caches serialized data for
 better performance. If the input data is possibly BER encoded, but the output
 must be DER encoded, the `force` parameter may be used with `.dump()`.
 
@@ -213,10 +213,10 @@ class MySequence(Sequence):
 Implicit and explicit tagging will be covered in more detail later, however
 the following are options that can be set for each field type class:
 
- - `{'default: 1}` sets the field's default value to `1`, allowing it to be
-   omitted from the serialized form
- - `{'optional': True}` set the field to be optional, allowing it to be
-   omitted
+- `{'default: 1}` sets the field's default value to `1`, allowing it to be
+  omitted from the serialized form
+- `{'optional': True}` set the field to be optional, allowing it to be
+  omitted
 
 ### Usage
 
@@ -303,7 +303,7 @@ class Integers(SetOf):
 
 ## Integer
 
-The `Integer` class allows values to be *named*. An `Integer` with named values
+The `Integer` class allows values to be _named_. An `Integer` with named values
 may contain any integer, however special values with named will be represented
 as those names when `.native` is called.
 
@@ -439,13 +439,13 @@ ASN.1 contains quite a number of string types:
 | `NumericString`   | ASCII `[0-9 ]`                    | ISO 8859-1              | The implementation is a superset of supported characters                  |
 | `PrintableString` | ASCII `[a-zA-Z0-9 '()+,\\-./:=?]` | ISO 8859-1              | The implementation is a superset of supported characters                  |
 | `TeletexString`   | ITU T.61                          | Custom                  | The implementation is based off of https://en.wikipedia.org/wiki/ITU_T.61 |
-| `VideotexString`  | *?*                               | *None*                  | This has no set encoding, and it not used in cryptography                 |
+| `VideotexString`  | _?_                               | _None_                  | This has no set encoding, and it not used in cryptography                 |
 | `IA5String`       | ITU T.50 (very similar to ASCII)  | ISO 8859-1              | The implementation is a superset of supported characters                  |
-| `GraphicString`   | *                                 | ISO 8859-1              | This has not set encoding, but seems to often contain ISO 8859-1          |
+| `GraphicString`   | \*                                | ISO 8859-1              | This has not set encoding, but seems to often contain ISO 8859-1          |
 | `VisibleString`   | ASCII (printable)                 | ISO 8859-1              | The implementation is a superset of supported characters                  |
-| `GeneralString`   | *                                 | ISO 8859-1              | This has not set encoding, but seems to often contain ISO 8859-1          |
+| `GeneralString`   | \*                                | ISO 8859-1              | This has not set encoding, but seems to often contain ISO 8859-1          |
 | `UniversalString` | UTF-32                            | UTF-32                  |                                                                           |
-| `CharacterString` | *                                 | ISO 8859-1              | This has not set encoding, but seems to often contain ISO 8859-1          |
+| `CharacterString` | \*                                | ISO 8859-1              | This has not set encoding, but seems to often contain ISO 8859-1          |
 | `BMPString`       | UTF-16                            | UTF-16                  |                                                                           |
 
 As noted in the table above, many of the implementations are supersets of the
@@ -465,10 +465,10 @@ print(IA5String('Testing!').native)
 
 The class `UTCTime` accepts a unicode string in one of the formats:
 
- - `%y%m%d%H%MZ`
- - `%y%m%d%H%M%SZ`
- - `%y%m%d%H%M%z`
- - `%y%m%d%H%M%S%z`
+- `%y%m%d%H%MZ`
+- `%y%m%d%H%M%SZ`
+- `%y%m%d%H%M%z`
+- `%y%m%d%H%M%S%z`
 
 or a `datetime.datetime` instance. See the
 [Python datetime strptime() reference](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior)
@@ -481,18 +481,18 @@ When `.native` is accessed, it returns a `datetime.datetime` object with a
 
 The class `GeneralizedTime` accepts a unicode string in one of the formats:
 
- - `%Y%m%d%H`
- - `%Y%m%d%H%M`
- - `%Y%m%d%H%M%S`
- - `%Y%m%d%H%M%S.%f`
- - `%Y%m%d%HZ`
- - `%Y%m%d%H%MZ`
- - `%Y%m%d%H%M%SZ`
- - `%Y%m%d%H%M%S.%fZ`
- - `%Y%m%d%H%z`
- - `%Y%m%d%H%M%z`
- - `%Y%m%d%H%M%S%z`
- - `%Y%m%d%H%M%S.%f%z`
+- `%Y%m%d%H`
+- `%Y%m%d%H%M`
+- `%Y%m%d%H%M%S`
+- `%Y%m%d%H%M%S.%f`
+- `%Y%m%d%HZ`
+- `%Y%m%d%H%MZ`
+- `%Y%m%d%H%M%SZ`
+- `%Y%m%d%H%M%S.%fZ`
+- `%Y%m%d%H%z`
+- `%Y%m%d%H%M%z`
+- `%Y%m%d%H%M%S%z`
+- `%Y%m%d%H%M%S.%f%z`
 
 or a `datetime.datetime` instance. See the
 [Python datetime strptime() reference](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior)
@@ -565,15 +565,15 @@ Throughout the usage of ASN.1 in cryptography, a pattern is present where an
 interpret another field in a `Sequence`. Usually the other field is an instance
 of `Any`, however occasionally it is an `OctetString` or `OctetBitString`.
 
-*asn1crypto* provides the `_oid_pair` and `_oid_specs` properties of the
+_asn1crypto_ provides the `_oid_pair` and `_oid_specs` properties of the
 `Sequence` class to allow handling these situations.
 
 The `_oid_pair` is a tuple with two unicode string elements. The first is the
 name of the field that is an `ObjectIdentifier` and the second if the name of
-the field that has a variable specification based on the first field. *In
+the field that has a variable specification based on the first field. _In
 situations where the value field should be an `OctetString` or `OctetBitString`,
 `ParsableOctetString` and `ParsableOctetBitString` will need to be used instead
-to allow for the sub-parsing of the contents.*
+to allow for the sub-parsing of the contents._
 
 The `_oid_specs` property is a `dict` object with `ObjectIdentifier` values as
 the keys (either dotted or mapped notation) and a type class as the value. When
@@ -608,9 +608,9 @@ class MySequence(Sequence):
 When working with `Sequence`, `Set` and `Choice` it is often necessary to
 disambiguate between fields because of a number of factors:
 
- - In `Sequence` the presence of an optional field must be determined by tag number
- - In `Set`, each field must have a different tag number since they can be in any order
- - In `Choice`, each alternative must have a different tag number to determine which is present
+- In `Sequence` the presence of an optional field must be determined by tag number
+- In `Set`, each field must have a different tag number since they can be in any order
+- In `Choice`, each alternative must have a different tag number to determine which is present
 
 The universal types all have unique tag numbers. However, if a `Sequence`, `Set`
 or `Choice` has more than one field with the same universal type, tagging allows

@@ -1,32 +1,24 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
-import unittest
 import re
 import sys
+import unittest
 import warnings
+
+from tests import test_classes
 
 from . import requires_oscrypto
 from ._import import _preload
 
-from tests import test_classes
-
-if sys.version_info < (3,):
-    range = xrange  # noqa
-    from cStringIO import StringIO
-else:
-    from io import StringIO
-
+from io import StringIO
 
 run_args = [
     {
-        'name': 'regex',
-        'kwarg': 'matcher',
+        "name": "regex",
+        "kwarg": "matcher",
     },
     {
-        'name': 'repeat_count',
-        'kwarg': 'repeat',
-        'cast': 'int',
+        "name": "repeat_count",
+        "kwarg": "repeat",
+        "cast": "int",
     },
 ]
 

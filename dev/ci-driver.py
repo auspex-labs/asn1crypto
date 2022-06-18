@@ -1,35 +1,28 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 import os
 import platform
-import sys
 import subprocess
-
+import sys
 
 run_args = [
     {
-        'name': 'cffi',
-        'kwarg': 'cffi',
+        "name": "cffi",
+        "kwarg": "cffi",
     },
     {
-        'name': 'openssl',
-        'kwarg': 'openssl',
+        "name": "openssl",
+        "kwarg": "openssl",
     },
     {
-        'name': 'winlegacy',
-        'kwarg': 'winlegacy',
+        "name": "winlegacy",
+        "kwarg": "winlegacy",
     },
 ]
 
 
 def _write_env(env, key, value):
-    sys.stdout.write("%s: %s\n" % (key, value))
+    sys.stdout.write("{}: {}\n".format(key, value))
     sys.stdout.flush()
-    if sys.version_info < (3,):
-        env[key.encode('utf-8')] = value.encode('utf-8')
-    else:
-        env[key] = value
+    env[key] = value
 
 
 def run(**_):
@@ -44,24 +37,22 @@ def run(**_):
     options = set(sys.argv[2:])
 
     newline = False
-    if 'cffi' not in options:
-        _write_env(env, 'OSCRYPTO_USE_CTYPES', 'true')
+    if "cffi" not in options:
+        _write_env(env, "OSCRYPTO_USE_CTYPES", "true")
         newline = True
-    if 'openssl' in options and sys.platform == 'darwin':
-        mac_version_info = tuple(map(int, platform.mac_ver()[0].split('.')[:2]))
+    if "openssl" in options and sys.platform == "darwin":
+        mac_version_info = tuple(map(int, platform.mac_ver()[0].split(".")[:2]))
         if mac_version_info < (10, 15):
-            _write_env(env, 'OSCRYPTO_USE_OPENSSL', '/usr/lib/libcrypto.dylib,/usr/lib/libssl.dylib')
+            _write_env(env, "OSCRYPTO_USE_OPENSSL", "/usr/lib/libcrypto.dylib,/usr/lib/libssl.dylib")
         else:
-            _write_env(env, 'OSCRYPTO_USE_OPENSSL', '/usr/lib/libcrypto.35.dylib,/usr/lib/libssl.35.dylib')
+            _write_env(env, "OSCRYPTO_USE_OPENSSL", "/usr/lib/libcrypto.35.dylib,/usr/lib/libssl.35.dylib")
         newline = True
-    if 'openssl3' in options and sys.platform == 'darwin':
+    if "openssl3" in options and sys.platform == "darwin":
         _write_env(
-            env,
-            'OSCRYPTO_USE_OPENSSL',
-            '/usr/local/opt/openssl@3/lib/libcrypto.dylib,/usr/local/opt/openssl@3/lib/libssl.dylib'
+            env, "OSCRYPTO_USE_OPENSSL", "/usr/local/opt/openssl@3/lib/libcrypto.dylib,/usr/local/opt/openssl@3/lib/libssl.dylib"
         )
-    if 'winlegacy' in options:
-        _write_env(env, 'OSCRYPTO_USE_WINLEGACY', 'true')
+    if "winlegacy" in options:
+        _write_env(env, "OSCRYPTO_USE_WINLEGACY", "true")
         newline = True
 
     if newline:
@@ -70,10 +61,10 @@ def run(**_):
     proc = subprocess.Popen(
         [
             sys.executable,
-            'run.py',
-            'ci',
+            "run.py",
+            "ci",
         ],
-        env=env
+        env=env,
     )
     proc.communicate()
     return proc.returncode == 0

@@ -1,12 +1,8 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 import imp
 import os
 import unittest
 
-
-__version__ = '1.5.1'
+__version__ = "1.5.1"
 __version_info__ = (1, 5, 1)
 
 
@@ -71,37 +67,33 @@ def test_classes():
 
     # If we are in a source folder and these tests aren't installed as a
     # package, we want to load asn1crypto from this source folder
-    tests_dir = os.path.dirname(os.path.abspath(__file__))
+    tests_dir = os.path.dirname(__file__)
 
     asn1crypto = None
-    if os.path.basename(tests_dir) == 'tests':
-        asn1crypto = _import_from(
-            'asn1crypto',
-            os.path.join(tests_dir, '..')
-        )
+    if os.path.basename(tests_dir) == "tests":
+        asn1crypto = _import_from("asn1crypto", os.path.join(tests_dir, ".."))
     if asn1crypto is None:
         import asn1crypto
 
     if asn1crypto.__version__ != __version__:
         raise AssertionError(
-            ('asn1crypto_tests version %s can not be run with ' % __version__) +
-            ('asn1crypto version %s' % asn1crypto.__version__)
+            ("asn1crypto_tests version %s can not be run with " % __version__) + ("asn1crypto version %s" % asn1crypto.__version__)
         )
 
     from .test_algos import AlgoTests
     from .test_cms import CMSTests
+    from .test_core import CoreTests
     from .test_crl import CRLTests
     from .test_csr import CSRTests
     from .test_init import InitTests
     from .test_keys import KeysTests
     from .test_ocsp import OCSPTests
+    from .test_parser import ParserTests
     from .test_pem import PEMTests
     from .test_pkcs12 import PKCS12Tests
     from .test_tsp import TSPTests
-    from .test_x509 import X509Tests
     from .test_util import UtilTests
-    from .test_parser import ParserTests
-    from .test_core import CoreTests
+    from .test_x509 import X509Tests
 
     return [
         AlgoTests,
@@ -117,5 +109,5 @@ def test_classes():
         UtilTests,
         ParserTests,
         X509Tests,
-        CoreTests
+        CoreTests,
     ]

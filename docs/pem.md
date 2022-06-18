@@ -5,9 +5,9 @@ DER data to be identified and reliably sent over various communication channels.
 
 The `asn1crypto.pem` module includes three functions:
 
- - `detect(byte_string)`
- - `unarmor(pem_bytes, multiple=False)`
- - `armor(type_name, der_bytes, headers=None)`
+- `detect(byte_string)`
+- `unarmor(pem_bytes, multiple=False)`
+- `armor(type_name, der_bytes, headers=None)`
 
 ## detect()
 
@@ -30,12 +30,12 @@ The `unarmor()` function accepts a byte string and the flag to indicates if
 more than one PEM block may be contained in the byte string. The result is
 a three-element tuple.
 
- - The first element is a unicode string of the type of PEM block. Examples
-   include: `CERTIFICATE`, `PRIVATE KEY`, `PUBLIC KEY`.
- - The second element is a `dict` of PEM block headers. Headers are typically
-   only used by encrypted OpenSSL private keys, and are in the format
-   `Name: Value`.
- - The third element is a byte string of the decoded block contents.
+- The first element is a unicode string of the type of PEM block. Examples
+  include: `CERTIFICATE`, `PRIVATE KEY`, `PUBLIC KEY`.
+- The second element is a `dict` of PEM block headers. Headers are typically
+  only used by encrypted OpenSSL private keys, and are in the format
+  `Name: Value`.
+- The third element is a byte string of the decoded block contents.
 
 ```python
 from asn1crypto import pem, x509

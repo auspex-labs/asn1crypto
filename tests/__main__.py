@@ -1,11 +1,7 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 import sys
 import unittest
 
 from . import test_classes
-
 
 suite = unittest.TestSuite()
 loader = unittest.TestLoader()

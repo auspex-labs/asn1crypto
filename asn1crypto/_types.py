@@ -1,29 +1,15 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 import inspect
 import sys
 
+str_cls = str
+byte_cls = bytes
+int_types = int
 
-if sys.version_info < (3,):
-    str_cls = unicode  # noqa
-    byte_cls = str
-    int_types = (int, long)  # noqa
+bytes_to_list = list
 
-    def bytes_to_list(byte_string):
-        return [ord(b) for b in byte_string]
 
-    chr_cls = chr
-
-else:
-    str_cls = str
-    byte_cls = bytes
-    int_types = int
-
-    bytes_to_list = list
-
-    def chr_cls(num):
-        return bytes([num])
+def chr_cls(num):
+    return bytes([num])
 
 
 def type_name(value):
@@ -41,6 +27,6 @@ def type_name(value):
         cls = value
     else:
         cls = value.__class__
-    if cls.__module__ in set(['builtins', '__builtin__']):
+    if cls.__module__ in {"builtins", "__builtin__"}:
         return cls.__name__
-    return '%s.%s' % (cls.__module__, cls.__name__)
+    return "{}.{}".format(cls.__module__, cls.__name__)

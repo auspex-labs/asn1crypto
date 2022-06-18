@@ -18,20 +18,20 @@ release. This is primarily a function of available resources.
 
 The following process is used when handling a potential secuirty issue:
 
- 1. The report should be emailed to will@wbond.net, and NOT posted on the
+1.  The report should be emailed to will@wbond.net, and NOT posted on the
     GitHub issue tracker.
- 2. Confirmation of receipt of the report should happen within two business
+2.  Confirmation of receipt of the report should happen within two business
     days.
- 3. Information will be collected and an investigation will be performed to
+3.  Information will be collected and an investigation will be performed to
     determine if a security issue exists.
- 4. If no security issue is found, the process will end.
- 5. A fix for the issue and announcement will be drafted.
- 6. A release schedule and accouncement will be negotiated between the
+4.  If no security issue is found, the process will end.
+5.  A fix for the issue and announcement will be drafted.
+6.  A release schedule and accouncement will be negotiated between the
     reporter and the project
- 7. The security contacts for Arch Linux, Conda, Debian, Fedora, FreeBSD, 
+7.  The security contacts for Arch Linux, Conda, Debian, Fedora, FreeBSD,
     Ubuntu, and Tidelift will be contacted to notify them of an upcoming
     security release.
- 8. Fixes for all vulnerabilities will be performed, and new releases made,
+8.  Fixes for all vulnerabilities will be performed, and new releases made,
     but without mention of a security issue. These changes and releases will
     be published before the announcement.
- 9. An announcement will be made disclosing the vulnerability and the fix.
+9.  An announcement will be made disclosing the vulnerability and the fix.

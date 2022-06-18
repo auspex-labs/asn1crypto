@@ -1,6 +1,3 @@
-# coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 import os
 import shutil
 
@@ -14,7 +11,7 @@ def run():
     """
 
     print("Removing ci dependencies")
-    deps_dir = os.path.join(build_root, 'modularcrypto-deps')
+    deps_dir = os.path.join(build_root, "modularcrypto-deps")
     if os.path.exists(deps_dir):
         shutil.rmtree(deps_dir, ignore_errors=True)
 

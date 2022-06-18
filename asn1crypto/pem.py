@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
 Encoding DER to PEM and decoding PEM to DER. Exports the following items:
 
@@ -9,19 +7,16 @@ Encoding DER to PEM and decoding PEM to DER. Exports the following items:
 
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 import base64
 import re
 import sys
 
 from ._errors import unwrap
-from ._types import type_name as _type_name, str_cls, byte_cls
+from ._types import byte_cls, str_cls
+from ._types import type_name as _type_name
 
-if sys.version_info < (3,):
-    from cStringIO import StringIO as BytesIO
-else:
-    from io import BytesIO
+from io import BytesIO
 
 
 def detect(byte_string):
@@ -37,14 +32,16 @@ def detect(byte_string):
     """
 
     if not isinstance(byte_string, byte_cls):
-        raise TypeError(unwrap(
-            '''
+        raise TypeError(
+            unwrap(
+                """
             byte_string must be a byte string, not %s
-            ''',
-            _type_name(byte_string)
-        ))
+            """,
+                _type_name(byte_string),
+            )
+        )
 
-    return byte_string.find(b'-----BEGIN') != -1 or byte_string.find(b'---- BEGIN') != -1
+    return byte_string.find(b"-----BEGIN") != -1 or byte_string.find(b"---- BEGIN") != -1
 
 
 def armor(type_name, der_bytes, headers=None):
@@ -68,43 +65,48 @@ def armor(type_name, der_bytes, headers=None):
     """
 
     if not isinstance(der_bytes, byte_cls):
-        raise TypeError(unwrap(
-            '''
+        raise TypeError(
+            unwrap(
+                """
             der_bytes must be a byte string, not %s
-            ''' % _type_name(der_bytes)
-        ))
+            """
+                % _type_name(der_bytes)
+            )
+        )
 
     if not isinstance(type_name, str_cls):
-        raise TypeError(unwrap(
-            '''
+        raise TypeError(
+            unwrap(
+                """
             type_name must be a unicode string, not %s
-            ''',
-            _type_name(type_name)
-        ))
+            """,
+                _type_name(type_name),
+            )
+        )
 
-    type_name = type_name.upper().encode('ascii')
+    type_name = type_name.upper().encode("ascii")
 
     output = BytesIO()
-    output.write(b'-----BEGIN ')
+    output.write(b"-----BEGIN ")
     output.write(type_name)
-    output.write(b'-----\n')
+    output.write(b"-----\n")
     if headers:
         for key in headers:
-            output.write(key.encode('ascii'))
-            output.write(b': ')
-            output.write(headers[key].encode('ascii'))
-            output.write(b'\n')
-        output.write(b'\n')
+            output.write(key.encode("ascii"))
+            output.write(b": ")
+            output.write(headers[key].encode("ascii"))
+            output.write(b"\n")
+        output.write(b"\n")
     b64_bytes = base64.b64encode(der_bytes)
     b64_len = len(b64_bytes)
     i = 0
     while i < b64_len:
-        output.write(b64_bytes[i:i + 64])
-        output.write(b'\n')
+        output.write(b64_bytes[i : i + 64])
+        output.write(b"\n")
         i += 64
-    output.write(b'-----END ')
+    output.write(b"-----END ")
     output.write(type_name)
-    output.write(b'-----\n')
+    output.write(b"-----\n")
 
     return output.getvalue()
 
@@ -128,56 +130,58 @@ def _unarmor(pem_bytes):
     """
 
     if not isinstance(pem_bytes, byte_cls):
-        raise TypeError(unwrap(
-            '''
+        raise TypeError(
+            unwrap(
+                """
             pem_bytes must be a byte string, not %s
-            ''',
-            _type_name(pem_bytes)
-        ))
+            """,
+                _type_name(pem_bytes),
+            )
+        )
 
     # Valid states include: "trash", "headers", "body"
-    state = 'trash'
+    state = "trash"
     headers = {}
-    base64_data = b''
+    base64_data = b""
     object_type = None
 
     found_start = False
     found_end = False
 
     for line in pem_bytes.splitlines(False):
-        if line == b'':
+        if line == b"":
             continue
 
         if state == "trash":
             # Look for a starting line since some CA cert bundle show the cert
             # into in a parsed format above each PEM block
-            type_name_match = re.match(b'^(?:---- |-----)BEGIN ([A-Z0-9 ]+)(?: ----|-----)', line)
+            type_name_match = re.match(b"^(?:---- |-----)BEGIN ([A-Z0-9 ]+)(?: ----|-----)", line)
             if not type_name_match:
                 continue
-            object_type = type_name_match.group(1).decode('ascii')
+            object_type = type_name_match.group(1).decode("ascii")
 
             found_start = True
-            state = 'headers'
+            state = "headers"
             continue
 
-        if state == 'headers':
-            if line.find(b':') == -1:
-                state = 'body'
+        if state == "headers":
+            if line.find(b":") == -1:
+                state = "body"
             else:
-                decoded_line = line.decode('ascii')
-                name, value = decoded_line.split(':', 1)
+                decoded_line = line.decode("ascii")
+                name, value = decoded_line.split(":", 1)
                 headers[name] = value.strip()
                 continue
 
-        if state == 'body':
-            if line[0:5] in (b'-----', b'---- '):
+        if state == "body":
+            if line[0:5] in (b"-----", b"---- "):
                 der_bytes = base64.b64decode(base64_data)
 
                 yield (object_type, headers, der_bytes)
 
-                state = 'trash'
+                state = "trash"
                 headers = {}
-                base64_data = b''
+                base64_data = b""
                 object_type = None
                 found_end = True
                 continue
@@ -185,12 +189,14 @@ def _unarmor(pem_bytes):
             base64_data += line
 
     if not found_start or not found_end:
-        raise ValueError(unwrap(
-            '''
+        raise ValueError(
+            unwrap(
+                """
             pem_bytes does not appear to contain PEM-encoded data - no
             BEGIN/END combination found
-            '''
-        ))
+            """
+            )
+        )
 
 
 def unarmor(pem_bytes, multiple=False):

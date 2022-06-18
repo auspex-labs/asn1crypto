@@ -8,14 +8,14 @@ jobs:
     strategy:
       matrix:
         python:
-          - '2.7'
-          - '3.9'
+          - "2.7"
+          - "3.9"
           # - 'pypy-3.7-v7.3.5'
         arch:
-          - 'x86'
-          - 'x64'
+          - "x86"
+          - "x64"
         exclude:
-          - python: 'pypy-3.7-v7.3.5'
+          - python: "pypy-3.7-v7.3.5"
             arch: x86
     steps:
       - uses: actions/checkout@master
@@ -36,11 +36,11 @@ jobs:
     strategy:
       matrix:
         python:
-          - '2.6'
-          - '3.3'
+          - "2.6"
+          - "3.3"
         arch:
-          - 'x86'
-          - 'x64'
+          - "x86"
+          - "x64"
     steps:
       - uses: actions/checkout@master
 
@@ -67,8 +67,8 @@ jobs:
     strategy:
       matrix:
         python:
-          - '2.7'
-          - '3.9'
+          - "2.7"
+          - "3.9"
           # - 'pypy-3.7-v7.3.5'
     steps:
       - uses: actions/checkout@master
@@ -95,8 +95,8 @@ jobs:
     strategy:
       matrix:
         python:
-          - '2.6'
-          - '3.3'
+          - "2.6"
+          - "3.3"
     steps:
       - uses: actions/checkout@master
 
@@ -127,11 +127,11 @@ jobs:
     strategy:
       matrix:
         python:
-          - '2.7'
-          - '3.6'
-          - '3.9'
-          - '3.10'
-          - 'pypy-3.7-v7.3.5'
+          - "2.7"
+          - "3.6"
+          - "3.9"
+          - "3.10"
+          - "pypy-3.7-v7.3.5"
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v2
@@ -149,9 +149,9 @@ jobs:
     strategy:
       matrix:
         python:
-          - '2.6'
-          - '3.2'
-          - '3.3'
+          - "2.6"
+          - "3.2"
+          - "3.3"
     steps:
       - uses: actions/checkout@master
       - name: Setup deadsnakes/ppa

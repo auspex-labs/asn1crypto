@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
 Exports the following items:
 
@@ -7,7 +5,6 @@ Exports the following items:
  - APIException()
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 import re
 import textwrap
@@ -43,8 +40,8 @@ def unwrap(string, *params):
 
     # Unwrap lines, taking into account bulleted lists, ordered lists and
     # underlines consisting of = signs
-    if output.find('\n') != -1:
-        output = re.sub('(?<=\\S)\n(?=[^ \n\t\\d\\*\\-=])', ' ', output)
+    if output.find("\n") != -1:
+        output = re.sub("(?<=\\S)\n(?=[^ \n\t\\d\\*\\-=])", " ", output)
 
     if params:
         output = output % params
