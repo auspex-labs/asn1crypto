@@ -9,9 +9,7 @@ jobs:
       matrix:
         python:
           - "3.9"
-          # - 'pypy-3.7-v7.3.5'
         arch:
-          - "x86"
           - "x64"
         exclude:
           - python: "pypy-3.7-v7.3.5"
@@ -35,9 +33,7 @@ jobs:
     strategy:
       matrix:
         python:
-          - "2.7"
           - "3.9"
-          # - 'pypy-3.7-v7.3.5'
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v2
@@ -65,7 +61,6 @@ jobs:
         python:
           - "3.9"
           - "3.10"
-          - "pypy-3.7-v7.3.5"
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v2
@@ -78,17 +73,10 @@ jobs:
         run: python run.py ci-driver
 
   build-arm:
-    name: Python 2.7/3.8 on arm
+    name: 3.8 on arm
     runs-on: [self-hosted, linux, ARM]
     steps:
       - uses: actions/checkout@master
-      - name: Install dependencies (2.7)
-        run: python2 run.py deps
-      - name: Run test suite (2.7)
-        run: python2 run.py ci-driver
-      - name: Cleanup deps (2.7)
-        if: always()
-        run: python2 run.py ci-cleanup
       - name: Install dependencies (3.8)
         run: python3 run.py deps
       - name: Run test suite (3.8)
@@ -98,17 +86,10 @@ jobs:
         run: python3 run.py ci-cleanup
 
   build-arm64:
-    name: Python 2.7/3.8 on arm64
+    name: 3.8 on arm64
     runs-on: [self-hosted, linux, ARM64]
     steps:
       - uses: actions/checkout@master
-      - name: Install dependencies (2.7)
-        run: python2 run.py deps
-      - name: Run test suite (2.7)
-        run: python2 run.py ci-driver
-      - name: Cleanup deps (2.7)
-        if: always()
-        run: python2 run.py ci-cleanup
       - name: Install dependencies (3.8)
         run: python3 run.py deps
       - name: Run test suite (3.8)
