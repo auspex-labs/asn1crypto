@@ -1,5 +1,4 @@
 # coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 from .version import __version__, __version_info__
 
@@ -23,7 +22,6 @@ def load_order():
     return [
         'asn1crypto._errors',
         'asn1crypto._int',
-        'asn1crypto._ordereddict',
         'asn1crypto._teletex_codec',
         'asn1crypto._types',
         'asn1crypto._inet',

@@ -11,14 +11,11 @@ following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 import sys
 
 from ._types import byte_cls, chr_cls, type_name
 from .util import int_from_bytes, int_to_bytes
 
-_PY2 = sys.version_info <= (3,)
 _INSUFFICIENT_DATA_MESSAGE = 'Insufficient data - %s bytes requested but only %s available'
 _MAX_DEPTH = 10
 
@@ -171,7 +168,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
 
     if data_len < pointer + 1:
         raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (1, data_len - pointer))
-    first_octet = ord(encoded_data[pointer]) if _PY2 else encoded_data[pointer]
+    first_octet = encoded_data[pointer]
 
     pointer += 1
 
@@ -183,7 +180,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
         while True:
             if data_len < pointer + 1:
                 raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (1, data_len - pointer))
-            num = ord(encoded_data[pointer]) if _PY2 else encoded_data[pointer]
+            num = encoded_data[pointer]
             pointer += 1
             if num == 0x80 and tag == 0:
                 raise ValueError('Non-minimal tag encoding')
@@ -196,7 +193,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
 
     if data_len < pointer + 1:
         raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (1, data_len - pointer))
-    length_octet = ord(encoded_data[pointer]) if _PY2 else encoded_data[pointer]
+    length_octet = encoded_data[pointer]
     pointer += 1
     trailer = b''
 

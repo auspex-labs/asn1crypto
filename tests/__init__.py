@@ -1,20 +1,15 @@
 # coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 import os
 import sys
 import unittest
-
-if sys.version_info < (3, 5):
-    import imp
-else:
-    import importlib
-    import importlib.abc
-    import importlib.util
+import importlib
+import importlib.abc
+import importlib.util
 
 
-__version__ = '1.5.1'
-__version_info__ = (1, 5, 1)
+__version__ = '2.0.0'
+__version_info__ = (2, 0, 0)
 
 
 if sys.version_info >= (3, 5):

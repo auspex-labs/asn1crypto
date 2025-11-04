@@ -19,7 +19,6 @@ Other type classes are defined that help compose the types listed above.
 Most CMS structures in the wild are formatted as ContentInfo encapsulating one of the other types.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 try:
     import zlib

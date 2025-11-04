@@ -10,7 +10,6 @@ the following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 from ._errors import unwrap
 from .algos import DigestAlgorithm, SignedDigestAlgorithm

@@ -9,19 +9,13 @@ Encoding DER to PEM and decoding PEM to DER. Exports the following items:
 
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 import base64
 import re
 import sys
+from io import BytesIO
 
 from ._errors import unwrap
 from ._types import type_name as _type_name, str_cls, byte_cls
-
-if sys.version_info < (3,):
-    from cStringIO import StringIO as BytesIO
-else:
-    from io import BytesIO
 
 
 def detect(byte_string):

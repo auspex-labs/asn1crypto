@@ -46,10 +46,10 @@ ASN.1 type classes for universal types. Exports the following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
-
+from collections import OrderedDict
 from datetime import datetime, timedelta
 from fractions import Fraction
+from io import BytesIO
 import binascii
 import copy
 import math
@@ -58,21 +58,9 @@ import sys
 
 from . import _teletex_codec
 from ._errors import unwrap
-from ._ordereddict import OrderedDict
 from ._types import type_name, str_cls, byte_cls, int_types, chr_cls
 from .parser import _parse, _dump_header
 from .util import int_to_bytes, int_from_bytes, timezone, extended_datetime, create_timezone, utc_with_dst
-
-if sys.version_info <= (3,):
-    from cStringIO import StringIO as BytesIO
-
-    range = xrange  # noqa
-    _PY2 = True
-
-else:
-    from io import BytesIO
-
-    _PY2 = False
 
 
 _teletex_codec.register()
@@ -447,17 +435,11 @@ class Asn1Value(object):
 
     def __str__(self):
         """
-        Since str is different in Python 2 and 3, this calls the appropriate
-        method, __unicode__() or __bytes__()
-
         :return:
             A unicode string
         """
 
-        if _PY2:
-            return self.__bytes__()
-        else:
-            return self.__unicode__()
+        return self.__unicode__()
 
     def __repr__(self):
         """
@@ -465,10 +447,7 @@ class Asn1Value(object):
             A unicode string
         """
 
-        if _PY2:
-            return '<%s %s b%s>' % (type_name(self), id(self), repr(self.dump()))
-        else:
-            return '<%s %s %s>' % (type_name(self), id(self), repr(self.dump()))
+        return '<%s %s %s>' % (type_name(self), id(self), repr(self.dump()))
 
     def __bytes__(self):
         """
@@ -624,10 +603,7 @@ class Asn1Value(object):
         elif hasattr(self, 'chosen'):
             self.chosen.debug(nest_level + 2)
         else:
-            if _PY2 and isinstance(self.native, byte_cls):
-                print('%s    Native: b%s' % (prefix, repr(self.native)))
-            else:
-                print('%s    Native: %s' % (prefix, self.native))
+            print('%s    Native: %s' % (prefix, self.native))
 
     def dump(self, force=False):
         """
@@ -1440,17 +1416,11 @@ class Concat(object):
 
     def __str__(self):
         """
-        Since str is different in Python 2 and 3, this calls the appropriate
-        method, __unicode__() or __bytes__()
-
         :return:
             A unicode string
         """
 
-        if _PY2:
-            return self.__bytes__()
-        else:
-            return self.__unicode__()
+        return self.__unicode__()
 
     def __bytes__(self):
         """
@@ -2019,7 +1989,7 @@ class _IntegerBitString(object):
             # return an empty chunk, for cases like \x23\x80\x00\x00
             return []
 
-        unused_bits_len = ord(self.contents[0]) if _PY2 else self.contents[0]
+        unused_bits_len = self.contents[0]
         value = int_from_bytes(self.contents[1:])
         bits = (len(self.contents) - 1) * 8
 
@@ -2450,7 +2420,7 @@ class OctetBitString(Constructable, Castable, Primitive):
             List with one tuple, consisting of a byte string and an integer (unused bits)
         """
 
-        unused_bits_len = ord(self.contents[0]) if _PY2 else self.contents[0]
+        unused_bits_len = self.contents[0]
         if not unused_bits_len:
             return [(self.contents[1:], ())]
 
@@ -2463,11 +2433,11 @@ class OctetBitString(Constructable, Castable, Primitive):
             raise ValueError('Bit string has {0} unused bits'.format(unused_bits_len))
 
         mask = (1 << unused_bits_len) - 1
-        last_byte = ord(self.contents[-1]) if _PY2 else self.contents[-1]
+        last_byte = self.contents[-1]
 
         # zero out the unused bits in the last byte.
         zeroed_byte = last_byte & ~mask
-        value = self.contents[1:-1] + (chr(zeroed_byte) if _PY2 else bytes((zeroed_byte,)))
+        value = self.contents[1:-1] + bytes((zeroed_byte,))
 
         unused_bits = _int_to_bit_tuple(last_byte & mask, unused_bits_len)
 
@@ -2949,7 +2919,7 @@ class ParsableOctetBitString(ParsableOctetString):
             A byte string
         """
 
-        unused_bits_len = ord(self.contents[0]) if _PY2 else self.contents[0]
+        unused_bits_len = self.contents[0]
         if unused_bits_len:
             raise ValueError('ParsableOctetBitString should have no unused bits')
 
@@ -3168,8 +3138,6 @@ class ObjectIdentifier(Primitive, ValueMap):
 
             part = 0
             for byte in self.contents:
-                if _PY2:
-                    byte = ord(byte)
                 part = part * 128
                 part += byte & 127
                 # Last byte in subidentifier has the eighth bit set to 0
@@ -5044,8 +5012,6 @@ class UTCTime(AbstractTime):
                 raise ValueError('Year of the UTCTime is not in range [1950, 2049], use GeneralizedTime instead')
 
             value = value.strftime('%y%m%d%H%M%SZ')
-            if _PY2:
-                value = value.decode('ascii')
 
         AbstractString.set(self, value)
         # Set it to None and let the class take care of converting the next
@@ -5143,8 +5109,6 @@ class GeneralizedTime(AbstractTime):
                 fraction = ''
 
             value = value.strftime('%Y%m%d%H%M%S') + fraction + 'Z'
-            if _PY2:
-                value = value.decode('ascii')
 
         AbstractString.set(self, value)
         # Set it to None and let the class take care of converting the next
