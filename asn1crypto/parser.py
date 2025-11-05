@@ -11,16 +11,18 @@ following items:
 Other type classes are defined that help compose the types listed above.
 """
 
+from __future__ import annotations
+
 import sys
 
 from ._types import byte_cls, chr_cls, type_name
 from .util import int_from_bytes, int_to_bytes
 
-_INSUFFICIENT_DATA_MESSAGE = 'Insufficient data - %s bytes requested but only %s available'
+_INSUFFICIENT_DATA_MESSAGE = 'Insufficient data - {} bytes requested but only {} available'
 _MAX_DEPTH = 10
 
 
-def emit(class_, method, tag, contents):
+def emit(class_: int, method: int, tag: int, contents: bytes) -> bytes:
     """
     Constructs a byte string of an ASN.1 DER-encoded value
 
@@ -46,30 +48,30 @@ def emit(class_, method, tag, contents):
     """
 
     if not isinstance(class_, int):
-        raise TypeError('class_ must be an integer, not %s' % type_name(class_))
+        raise TypeError(f'class_ must be an integer, not {type_name(class_)}')
 
     if class_ < 0 or class_ > 3:
-        raise ValueError('class_ must be one of 0, 1, 2 or 3, not %s' % class_)
+        raise ValueError(f'class_ must be one of 0, 1, 2 or 3, not {class_}')
 
     if not isinstance(method, int):
-        raise TypeError('method must be an integer, not %s' % type_name(method))
+        raise TypeError(f'method must be an integer, not {type_name(method)}')
 
     if method < 0 or method > 1:
-        raise ValueError('method must be 0 or 1, not %s' % method)
+        raise ValueError(f'method must be 0 or 1, not {method}')
 
     if not isinstance(tag, int):
-        raise TypeError('tag must be an integer, not %s' % type_name(tag))
+        raise TypeError(f'tag must be an integer, not {type_name(tag)}')
 
     if tag < 0:
-        raise ValueError('tag must be greater than zero, not %s' % tag)
+        raise ValueError(f'tag must be greater than zero, not {tag}')
 
     if not isinstance(contents, byte_cls):
-        raise TypeError('contents must be a byte string, not %s' % type_name(contents))
+        raise TypeError(f'contents must be a byte string, not {type_name(contents)}')
 
     return _dump_header(class_, method, tag, contents) + contents
 
 
-def parse(contents, strict=False):
+def parse(contents: bytes, strict: bool = False) -> tuple[int, int, int, bytes, bytes, bytes]:
     """
     Parses a byte string of ASN.1 BER/DER-encoded data.
 
@@ -99,16 +101,16 @@ def parse(contents, strict=False):
     """
 
     if not isinstance(contents, byte_cls):
-        raise TypeError('contents must be a byte string, not %s' % type_name(contents))
+        raise TypeError(f'contents must be a byte string, not {type_name(contents)}')
 
     contents_len = len(contents)
     info, consumed = _parse(contents, contents_len)
     if strict and consumed != contents_len:
-        raise ValueError('Extra data - %d bytes of trailing data were provided' % (contents_len - consumed))
+        raise ValueError(f'Extra data - {contents_len - consumed} bytes of trailing data were provided')
     return info
 
 
-def peek(contents):
+def peek(contents: bytes) -> int:
     """
     Parses a byte string of ASN.1 BER/DER-encoded data to find the length
 
@@ -128,7 +130,7 @@ def peek(contents):
     """
 
     if not isinstance(contents, byte_cls):
-        raise TypeError('contents must be a byte string, not %s' % type_name(contents))
+        raise TypeError(f'contents must be a byte string, not {type_name(contents)}')
 
     info, consumed = _parse(contents, len(contents))
     return consumed
@@ -167,7 +169,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
     start = pointer
 
     if data_len < pointer + 1:
-        raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (1, data_len - pointer))
+        raise ValueError(_INSUFFICIENT_DATA_MESSAGE.format(1, data_len - pointer))
     first_octet = encoded_data[pointer]
 
     pointer += 1
@@ -179,7 +181,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
         tag = 0
         while True:
             if data_len < pointer + 1:
-                raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (1, data_len - pointer))
+                raise ValueError(_INSUFFICIENT_DATA_MESSAGE.format(1, data_len - pointer))
             num = encoded_data[pointer]
             pointer += 1
             if num == 0x80 and tag == 0:
@@ -192,7 +194,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
             raise ValueError('Non-minimal tag encoding')
 
     if data_len < pointer + 1:
-        raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (1, data_len - pointer))
+        raise ValueError(_INSUFFICIENT_DATA_MESSAGE.format(1, data_len - pointer))
     length_octet = encoded_data[pointer]
     pointer += 1
     trailer = b''
@@ -204,7 +206,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
         length_octets = length_octet & 127
         if length_octets:
             if data_len < pointer + length_octets:
-                raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (length_octets, data_len - pointer))
+                raise ValueError(_INSUFFICIENT_DATA_MESSAGE.format(length_octets, data_len - pointer))
             pointer += length_octets
             contents_end = pointer + int_from_bytes(encoded_data[pointer - length_octets:pointer], signed=False)
 
@@ -222,7 +224,7 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
             trailer = b'\x00\x00'
 
     if contents_end > data_len:
-        raise ValueError(_INSUFFICIENT_DATA_MESSAGE % (contents_end - pointer, data_len - pointer))
+        raise ValueError(_INSUFFICIENT_DATA_MESSAGE.format(contents_end - pointer, data_len - pointer))
 
     if lengths_only:
         return (pointer, contents_end)
