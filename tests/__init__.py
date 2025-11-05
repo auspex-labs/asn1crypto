@@ -1,19 +1,18 @@
 # coding: utf-8
 
-import os
-import sys
-import unittest
 import importlib
 import importlib.abc
 import importlib.util
+import os
+import sys
+import unittest
 
 
 __version__ = '2.0.0'
 __version_info__ = (2, 0, 0)
 
 
-if sys.version_info >= (3, 5):
-    class ModCryptoMetaFinder(importlib.abc.MetaPathFinder):
+class ModCryptoMetaFinder(importlib.abc.MetaPathFinder):
         def setup(self):
             self.modules = {}
             sys.meta_path.insert(0, self)
@@ -49,8 +48,8 @@ if sys.version_info >= (3, 5):
                 submodule_search_locations=submodule_locations
             )
 
-    CUSTOM_FINDER = ModCryptoMetaFinder()
-    CUSTOM_FINDER.setup()
+CUSTOM_FINDER = ModCryptoMetaFinder()
+CUSTOM_FINDER.setup()
 
 
 def _import_from(mod, path, mod_dir=None):
@@ -97,17 +96,12 @@ def _import_from(mod, path, mod_dir=None):
         path = os.path.join(path, append)
 
     try:
-        if sys.version_info < (3, 5):
-            mod_info = imp.find_module(mod_dir, [path])
-            return imp.load_module(mod, *mod_info)
+        package = mod.split('.', 1)[0]
+        package_dir = full_mod.split('.', 1)[0]
+        package_path = os.path.join(path, package_dir)
+        CUSTOM_FINDER.add_module(package, package_path)
 
-        else:
-            package = mod.split('.', 1)[0]
-            package_dir = full_mod.split('.', 1)[0]
-            package_path = os.path.join(path, package_dir)
-            CUSTOM_FINDER.add_module(package, package_path)
-
-            return importlib.import_module(mod)
+        return importlib.import_module(mod)
 
     except ImportError:
         return None
