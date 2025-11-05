@@ -9,16 +9,19 @@ Encoding DER to PEM and decoding PEM to DER. Exports the following items:
 
 """
 
+from __future__ import annotations
+
 import base64
 import re
 import sys
+from collections.abc import Generator
 from io import BytesIO
 
 from ._errors import unwrap
 from ._types import type_name as _type_name, str_cls, byte_cls
 
 
-def detect(byte_string):
+def detect(byte_string: bytes) -> bool:
     """
     Detect if a byte string seems to contain a PEM-encoded block
 
@@ -32,16 +35,15 @@ def detect(byte_string):
 
     if not isinstance(byte_string, byte_cls):
         raise TypeError(unwrap(
+            f'''
+            byte_string must be a byte string, not {_type_name(byte_string)}
             '''
-            byte_string must be a byte string, not %s
-            ''',
-            _type_name(byte_string)
         ))
 
     return byte_string.find(b'-----BEGIN') != -1 or byte_string.find(b'---- BEGIN') != -1
 
 
-def armor(type_name, der_bytes, headers=None):
+def armor(type_name: str, der_bytes: bytes, headers: dict[str, str] | None = None) -> bytes:
     """
     Armors a DER-encoded byte string in PEM
 
@@ -63,17 +65,16 @@ def armor(type_name, der_bytes, headers=None):
 
     if not isinstance(der_bytes, byte_cls):
         raise TypeError(unwrap(
+            f'''
+            der_bytes must be a byte string, not {_type_name(der_bytes)}
             '''
-            der_bytes must be a byte string, not %s
-            ''' % _type_name(der_bytes)
         ))
 
     if not isinstance(type_name, str_cls):
         raise TypeError(unwrap(
+            f'''
+            type_name must be a unicode string, not {_type_name(type_name)}
             '''
-            type_name must be a unicode string, not %s
-            ''',
-            _type_name(type_name)
         ))
 
     type_name = type_name.upper().encode('ascii')
@@ -123,10 +124,9 @@ def _unarmor(pem_bytes):
 
     if not isinstance(pem_bytes, byte_cls):
         raise TypeError(unwrap(
+            f'''
+            pem_bytes must be a byte string, not {_type_name(pem_bytes)}
             '''
-            pem_bytes must be a byte string, not %s
-            ''',
-            _type_name(pem_bytes)
         ))
 
     # Valid states include: "trash", "headers", "body"
@@ -187,7 +187,7 @@ def _unarmor(pem_bytes):
         ))
 
 
-def unarmor(pem_bytes, multiple=False):
+def unarmor(pem_bytes: bytes, multiple: bool = False) -> tuple[str, dict[str, str], bytes] | Generator[tuple[str, dict[str, str], bytes], None, None]:
     """
     Convert a PEM-encoded byte string into a DER-encoded byte string
 

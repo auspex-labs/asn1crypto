@@ -16,6 +16,8 @@ from bytes and UTC timezone. Exports the following items:
  - iri_to_uri()
 """
 
+from __future__ import annotations
+
 from collections import OrderedDict  # noqa
 from datetime import datetime, date, timedelta, timezone, tzinfo
 import math
@@ -31,7 +33,7 @@ else:
     from socket import inet_ntop, inet_pton  # noqa
 
 
-def int_to_bytes(value, signed=False, width=None):
+def int_to_bytes(value: int, signed: bool = False, width: int | None = None) -> bytes:
     """
     Converts an integer to a byte string
 
@@ -63,7 +65,7 @@ def int_to_bytes(value, signed=False, width=None):
     return value.to_bytes(width, byteorder='big', signed=signed)
 
 
-def int_from_bytes(value, signed=False):
+def int_from_bytes(value: bytes, signed: bool = False) -> int:
     """
     Converts a byte string to an integer
 
@@ -80,7 +82,7 @@ def int_from_bytes(value, signed=False):
     return int.from_bytes(value, 'big', signed=signed)
 
 
-def _format_offset(off):
+def _format_offset(off: timedelta | None) -> str:
     """
     Format a timedelta into "[+-]HH:MM" format or "" for None
     """
@@ -89,7 +91,8 @@ def _format_offset(off):
         return ''
     mins = off.days * 24 * 60 + off.seconds // 60
     sign = '-' if mins < 0 else '+'
-    return sign + '%02d:%02d' % divmod(abs(mins), 60)
+    hours, minutes = divmod(abs(mins), 60)
+    return f'{sign}{hours:02d}:{minutes:02d}'
 
 
 class _UtcWithDst(tzinfo):
@@ -112,7 +115,7 @@ utc_with_dst = _UtcWithDst()
 _timezone_cache = {}
 
 
-def create_timezone(offset):
+def create_timezone(offset: timedelta) -> timezone:
     """
     Returns a new datetime.timezone object with the given offset.
     Uses cached objects if possible.
@@ -482,9 +485,9 @@ class extended_datetime(object):
             string in Python 2
         """
 
-        s = '0000-%02d-%02d%c%02d:%02d:%02d' % (self.month, self.day, sep, self.hour, self.minute, self.second)
+        s = f'0000-{self.month:02d}-{self.day:02d}{sep}{self.hour:02d}:{self.minute:02d}:{self.second:02d}'
         if self.microsecond:
-            s += '.%06d' % self.microsecond
+            s += f'.{self.microsecond:06d}'
         return s + _format_offset(self.utcoffset())
 
     def replace(self, year=None, *args, **kwargs):
