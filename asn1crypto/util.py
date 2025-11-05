@@ -33,7 +33,7 @@ else:
     from socket import inet_ntop, inet_pton  # noqa
 
 
-def int_to_bytes(value: int, signed: bool = False, width: int | None = None) -> bytes:
+def int_to_bytes(value: int, signed: bool = False, width=None) -> bytes:
     """
     Converts an integer to a byte string
 
@@ -82,7 +82,7 @@ def int_from_bytes(value: bytes, signed: bool = False) -> int:
     return int.from_bytes(value, 'big', signed=signed)
 
 
-def _format_offset(off: timedelta | None) -> str:
+def _format_offset(off) -> str:
     """
     Format a timedelta into "[+-]HH:MM" format or "" for None
     """

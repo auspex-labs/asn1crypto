@@ -43,7 +43,7 @@ def detect(byte_string: bytes) -> bool:
     return byte_string.find(b'-----BEGIN') != -1 or byte_string.find(b'---- BEGIN') != -1
 
 
-def armor(type_name: str, der_bytes: bytes, headers: dict[str, str] | None = None) -> bytes:
+def armor(type_name: str, der_bytes: bytes, headers=None) -> bytes:
     """
     Armors a DER-encoded byte string in PEM
 
@@ -187,7 +187,7 @@ def _unarmor(pem_bytes):
         ))
 
 
-def unarmor(pem_bytes: bytes, multiple: bool = False) -> tuple[str, dict[str, str], bytes] | Generator[tuple[str, dict[str, str], bytes], None, None]:
+def unarmor(pem_bytes: bytes, multiple: bool = False):
     """
     Convert a PEM-encoded byte string into a DER-encoded byte string
 
