@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from __future__ import annotations
+
 """
 ASN.1 type classes for certificate revocation lists (CRL). Exports the
 following items:

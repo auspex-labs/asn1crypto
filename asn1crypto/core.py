@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from __future__ import annotations
+
 """
 ASN.1 type classes for universal types. Exports the following items:
 
@@ -100,7 +102,7 @@ _OID_RE = re.compile(r'^\d+(\.\d+)*$')
 _SETUP_CLASSES = {}
 
 
-def load(encoded_data, strict=False):
+def load(encoded_data: bytes, strict: bool = False) -> Asn1Value:
     """
     Loads a BER/DER-encoded byte string and construct a universal object based
     on the tag value:
@@ -218,7 +220,7 @@ class Asn1Value(object):
         """
 
         if not isinstance(encoded_data, byte_cls):
-            raise TypeError('encoded_data must be a byte string, not %s' % type_name(encoded_data))
+            raise TypeError(f'encoded_data must be a byte string, not {type_name(encoded_data)}')
 
         spec = None
         if cls.tag is not None:
@@ -447,7 +449,7 @@ class Asn1Value(object):
             A unicode string
         """
 
-        return '<%s %s %s>' % (type_name(self), id(self), repr(self.dump()))
+        return f'<{type_name(self)} {id(self)} {self.dump()!r}>'
 
     def __bytes__(self):
         """
@@ -603,7 +605,7 @@ class Asn1Value(object):
         elif hasattr(self, 'chosen'):
             self.chosen.debug(nest_level + 2)
         else:
-            print('%s    Native: %s' % (prefix, self.native))
+            print(f'{prefix}    Native: {self.native}')
 
     def dump(self, force=False):
         """
@@ -1050,7 +1052,7 @@ class Choice(Asn1Value):
         """
 
         if not isinstance(encoded_data, byte_cls):
-            raise TypeError('encoded_data must be a byte string, not %s' % type_name(encoded_data))
+            raise TypeError(f'encoded_data must be a byte string, not {type_name(encoded_data)}')
 
         value, _ = _parse_build(encoded_data, spec=cls, spec_params=kwargs, strict=strict)
         return value
@@ -1294,7 +1296,7 @@ class Choice(Asn1Value):
             A unicode string of a human-friendly representation of the class and tag
         """
 
-        return '[%s %s]' % (CLASS_NUM_TO_NAME_MAP[class_].upper(), tag)
+        return f'[{CLASS_NUM_TO_NAME_MAP[class_].upper()} {tag}]'
 
     def _copy(self, other, copy_func):
         """
@@ -1443,7 +1445,7 @@ class Concat(object):
             A unicode string
         """
 
-        return '<%s %s %s>' % (type_name(self), id(self), repr(self.dump()))
+        return f'<{type_name(self)} {id(self)} {self.dump()!r}>'
 
     def __copy__(self):
         """
@@ -1512,8 +1514,8 @@ class Concat(object):
         """
 
         prefix = '  ' * nest_level
-        print('%s%s Object #%s' % (prefix, type_name(self), id(self)))
-        print('%s  Children:' % (prefix,))
+        print(f'{prefix}{type_name(self)} Object #{id(self)}')
+        print(f'{prefix}  Children:')
         for child in self._children:
             child.debug(nest_level + 2)
 
@@ -4088,7 +4090,7 @@ class Sequence(Asn1Value):
         for field_name in self:
             child = self._lazy_child(self._field_map[field_name])
             if child is not VOID:
-                print('%s    Field "%s"' % (prefix, field_name))
+                print(f'{prefix}    Field "{field_name}"')
                 child.debug(nest_level + 3)
 
     def dump(self, force=False):
@@ -5200,9 +5202,9 @@ def _basic_debug(prefix, self):
         The object to print the debugging information about
     """
 
-    print('%s%s Object #%s' % (prefix, type_name(self), id(self)))
+    print(f'{prefix}{type_name(self)} Object #{id(self)}')
     if self._header:
-        print('%s  Header: 0x%s' % (prefix, binascii.hexlify(self._header or b'').decode('utf-8')))
+        print(f'{prefix}  Header: 0x{binascii.hexlify(self._header or b"").decode("utf-8")}')
 
     has_header = self.method is not None and self.class_ is not None and self.tag is not None
     if has_header:
@@ -5211,28 +5213,21 @@ def _basic_debug(prefix, self):
 
     if self.explicit is not None:
         for class_, tag in self.explicit:
-            print(
-                '%s    %s tag %s (explicitly tagged)' %
-                (
-                    prefix,
-                    CLASS_NUM_TO_NAME_MAP.get(class_),
-                    tag
-                )
-            )
+            print(f'{prefix}    {CLASS_NUM_TO_NAME_MAP.get(class_)} tag {tag} (explicitly tagged)')
         if has_header:
-            print('%s      %s %s %s' % (prefix, method_name, class_name, self.tag))
+            print(f'{prefix}      {method_name} {class_name} {self.tag}')
 
     elif self.implicit:
         if has_header:
-            print('%s    %s %s tag %s (implicitly tagged)' % (prefix, method_name, class_name, self.tag))
+            print(f'{prefix}    {method_name} {class_name} tag {self.tag} (implicitly tagged)')
 
     elif has_header:
-        print('%s    %s %s tag %s' % (prefix, method_name, class_name, self.tag))
+        print(f'{prefix}    {method_name} {class_name} tag {self.tag}')
 
     if self._trailer:
-        print('%s  Trailer: 0x%s' % (prefix, binascii.hexlify(self._trailer or b'').decode('utf-8')))
+        print(f'{prefix}  Trailer: 0x{binascii.hexlify(self._trailer or b"").decode("utf-8")}')
 
-    print('%s  Data: 0x%s' % (prefix, binascii.hexlify(self.contents or b'').decode('utf-8')))
+    print(f'{prefix}  Data: 0x{binascii.hexlify(self.contents or b"").decode("utf-8")}')
 
 
 def _tag_type_to_explicit_implicit(params):

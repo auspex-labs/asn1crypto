@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from __future__ import annotations
+
 """
 ASN.1 type classes for certificate signing requests (CSR). Exports the
 following items:

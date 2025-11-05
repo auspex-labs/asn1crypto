@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from __future__ import annotations
+
 """
 ASN.1 type classes for X.509 certificates. Exports the following items:
 
@@ -859,7 +861,7 @@ class RelativeDistinguishedName(SetOf):
         output = []
         values = self._get_values(self)
         for key in sorted(values.keys()):
-            output.append('%s: %s' % (key, values[key]))
+            output.append(f'{key}: {values[key]}')
         # Unit separator is used here since the normalization process for
         # values moves any such character, and the keys are all dotted integers
         # or under_score_words
@@ -1127,7 +1129,7 @@ class Name(Choice):
             for key in keys:
                 value = data[key]
                 native_value = self._recursive_humanize(value)
-                to_join.append('%s: %s' % (key, native_value))
+                to_join.append(f'{key}: {native_value}')
 
             has_comma = False
             for element in to_join:

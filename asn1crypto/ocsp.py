@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from __future__ import annotations
+
 """
 ASN.1 type classes for the online certificate status protocol (OCSP). Exports
 the following items:
