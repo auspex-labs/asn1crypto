@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from __future__ import annotations
-
 """
 ASN.1 type classes for universal types. Exports the following items:
 
@@ -102,7 +100,7 @@ _OID_RE = re.compile(r'^\d+(\.\d+)*$')
 _SETUP_CLASSES = {}
 
 
-def load(encoded_data: bytes, strict: bool = False) -> Asn1Value:
+def load(encoded_data: bytes, strict: bool = False):
     """
     Loads a BER/DER-encoded byte string and construct a universal object based
     on the tag value:

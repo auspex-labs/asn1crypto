@@ -16,7 +16,6 @@ from bytes and UTC timezone. Exports the following items:
  - iri_to_uri()
 """
 
-from __future__ import annotations
 
 from collections import OrderedDict  # noqa
 from datetime import datetime, date, timedelta, timezone, tzinfo

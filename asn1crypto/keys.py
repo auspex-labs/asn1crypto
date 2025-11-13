@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import annotations
 
 """
 ASN.1 type classes for public and private keys. Exports the following items:

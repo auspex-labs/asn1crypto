@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import annotations
 
 """
 ASN.1 type classes for the time stamp protocol (TSP). Exports the following

@@ -9,7 +9,6 @@ Encoding DER to PEM and decoding PEM to DER. Exports the following items:
 
 """
 
-from __future__ import annotations
 
 import base64
 import re

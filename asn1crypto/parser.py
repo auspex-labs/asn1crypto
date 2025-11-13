@@ -11,7 +11,6 @@ following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import annotations
 
 import sys
 
@@ -71,7 +70,7 @@ def emit(class_: int, method: int, tag: int, contents: bytes) -> bytes:
     return _dump_header(class_, method, tag, contents) + contents
 
 
-def parse(contents: bytes, strict: bool = False) -> tuple[int, int, int, bytes, bytes, bytes]:
+def parse(contents: bytes, strict: bool = False) -> tuple:
     """
     Parses a byte string of ASN.1 BER/DER-encoded data.
 

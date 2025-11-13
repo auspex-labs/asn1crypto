@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import annotations
 
 """
 ASN.1 type classes for cryptographic message syntax (CMS). Structures are also
