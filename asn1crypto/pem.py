@@ -13,7 +13,6 @@ Encoding DER to PEM and decoding PEM to DER. Exports the following items:
 import base64
 import re
 import sys
-from collections.abc import Generator
 from io import BytesIO
 
 from ._errors import unwrap
