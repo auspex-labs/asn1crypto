@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
 ASN.1 type classes for cryptographic message syntax (CMS). Structures are also
 compatible with PKCS#7. Exports the following items:
@@ -19,7 +20,6 @@ Other type classes are defined that help compose the types listed above.
 Most CMS structures in the wild are formatted as ContentInfo encapsulating one of the other types.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 try:
     import zlib

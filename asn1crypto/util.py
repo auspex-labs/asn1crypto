@@ -16,15 +16,14 @@ from bytes and UTC timezone. Exports the following items:
  - iri_to_uri()
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
+from collections import OrderedDict  # noqa
+from datetime import datetime, date, timedelta, timezone, tzinfo
 import math
 import sys
-from datetime import datetime, date, timedelta, tzinfo
 
 from ._errors import unwrap
 from ._iri import iri_to_uri, uri_to_iri  # noqa
-from ._ordereddict import OrderedDict  # noqa
 from ._types import type_name
 
 if sys.platform == 'win32':
@@ -33,233 +32,56 @@ else:
     from socket import inet_ntop, inet_pton  # noqa
 
 
-# Python 2
-if sys.version_info <= (3,):
+def int_to_bytes(value: int, signed: bool = False, width=None) -> bytes:
+    """
+    Converts an integer to a byte string
 
-    def int_to_bytes(value, signed=False, width=None):
-        """
-        Converts an integer to a byte string
+    :param value:
+        The integer to convert
 
-        :param value:
-            The integer to convert
+    :param signed:
+        If the byte string should be encoded using two's complement
 
-        :param signed:
-            If the byte string should be encoded using two's complement
+    :param width:
+        If None, the minimal possible size (but at least 1),
+        otherwise an integer of the byte width for the return value
 
-        :param width:
-            If None, the minimal possible size (but at least 1),
-            otherwise an integer of the byte width for the return value
+    :return:
+        A byte string
+    """
 
-        :return:
-            A byte string
-        """
-
-        if value == 0 and width == 0:
-            return b''
-
-        # Handle negatives in two's complement
-        is_neg = False
-        if signed and value < 0:
-            is_neg = True
-            bits = int(math.ceil(len('%x' % abs(value)) / 2.0) * 8)
-            value = (value + (1 << bits)) % (1 << bits)
-
-        hex_str = '%x' % value
-        if len(hex_str) & 1:
-            hex_str = '0' + hex_str
-
-        output = hex_str.decode('hex')
-
-        if signed and not is_neg and ord(output[0:1]) & 0x80:
-            output = b'\x00' + output
-
-        if width is not None:
-            if len(output) > width:
-                raise OverflowError('int too big to convert')
-            if is_neg:
-                pad_char = b'\xFF'
-            else:
-                pad_char = b'\x00'
-            output = (pad_char * (width - len(output))) + output
-        elif is_neg and ord(output[0:1]) & 0x80 == 0:
-            output = b'\xFF' + output
-
-        return output
-
-    def int_from_bytes(value, signed=False):
-        """
-        Converts a byte string to an integer
-
-        :param value:
-            The byte string to convert
-
-        :param signed:
-            If the byte string should be interpreted using two's complement
-
-        :return:
-            An integer
-        """
-
-        if value == b'':
-            return 0
-
-        num = long(value.encode("hex"), 16)  # noqa
-
-        if not signed:
-            return num
-
-        # Check for sign bit and handle two's complement
-        if ord(value[0:1]) & 0x80:
-            bit_len = len(value) * 8
-            return num - (1 << bit_len)
-
-        return num
-
-    class timezone(tzinfo):  # noqa
-        """
-        Implements datetime.timezone for py2.
-        Only full minute offsets are supported.
-        DST is not supported.
-        """
-
-        def __init__(self, offset, name=None):
-            """
-            :param offset:
-                A timedelta with this timezone's offset from UTC
-
-            :param name:
-                Name of the timezone; if None, generate one.
-            """
-
-            if not timedelta(hours=-24) < offset < timedelta(hours=24):
-                raise ValueError('Offset must be in [-23:59, 23:59]')
-
-            if offset.seconds % 60 or offset.microseconds:
-                raise ValueError('Offset must be full minutes')
-
-            self._offset = offset
-
-            if name is not None:
-                self._name = name
-            elif not offset:
-                self._name = 'UTC'
-            else:
-                self._name = 'UTC' + _format_offset(offset)
-
-        def __eq__(self, other):
-            """
-            Compare two timezones
-
-            :param other:
-                The other timezone to compare to
-
-            :return:
-                A boolean
-            """
-
-            if type(other) != timezone:
-                return False
-            return self._offset == other._offset
-
-        def __getinitargs__(self):
-            """
-            Called by tzinfo.__reduce__ to support pickle and copy.
-
-            :return:
-                offset and name, to be used for __init__
-            """
-
-            return self._offset, self._name
-
-        def tzname(self, dt):
-            """
-            :param dt:
-                A datetime object; ignored.
-
-            :return:
-                Name of this timezone
-            """
-
-            return self._name
-
-        def utcoffset(self, dt):
-            """
-            :param dt:
-                A datetime object; ignored.
-
-            :return:
-                A timedelta object with the offset from UTC
-            """
-
-            return self._offset
-
-        def dst(self, dt):
-            """
-            :param dt:
-                A datetime object; ignored.
-
-            :return:
-                Zero timedelta
-            """
-
-            return timedelta(0)
-
-    timezone.utc = timezone(timedelta(0))
-
-# Python 3
-else:
-
-    from datetime import timezone  # noqa
-
-    def int_to_bytes(value, signed=False, width=None):
-        """
-        Converts an integer to a byte string
-
-        :param value:
-            The integer to convert
-
-        :param signed:
-            If the byte string should be encoded using two's complement
-
-        :param width:
-            If None, the minimal possible size (but at least 1),
-            otherwise an integer of the byte width for the return value
-
-        :return:
-            A byte string
-        """
-
-        if width is None:
-            if signed:
-                if value < 0:
-                    bits_required = abs(value + 1).bit_length()
-                else:
-                    bits_required = value.bit_length()
-                if bits_required % 8 == 0:
-                    bits_required += 1
+    if width is None:
+        if signed:
+            if value < 0:
+                bits_required = abs(value + 1).bit_length()
             else:
                 bits_required = value.bit_length()
-            width = math.ceil(bits_required / 8) or 1
-        return value.to_bytes(width, byteorder='big', signed=signed)
-
-    def int_from_bytes(value, signed=False):
-        """
-        Converts a byte string to an integer
-
-        :param value:
-            The byte string to convert
-
-        :param signed:
-            If the byte string should be interpreted using two's complement
-
-        :return:
-            An integer
-        """
-
-        return int.from_bytes(value, 'big', signed=signed)
+            if bits_required % 8 == 0:
+                bits_required += 1
+        else:
+            bits_required = value.bit_length()
+        width = math.ceil(bits_required / 8) or 1
+    return value.to_bytes(width, byteorder='big', signed=signed)
 
 
-def _format_offset(off):
+def int_from_bytes(value: bytes, signed: bool = False) -> int:
+    """
+    Converts a byte string to an integer
+
+    :param value:
+        The byte string to convert
+
+    :param signed:
+        If the byte string should be interpreted using two's complement
+
+    :return:
+        An integer
+    """
+
+    return int.from_bytes(value, 'big', signed=signed)
+
+
+def _format_offset(off) -> str:
     """
     Format a timedelta into "[+-]HH:MM" format or "" for None
     """
@@ -268,7 +90,8 @@ def _format_offset(off):
         return ''
     mins = off.days * 24 * 60 + off.seconds // 60
     sign = '-' if mins < 0 else '+'
-    return sign + '%02d:%02d' % divmod(abs(mins), 60)
+    hours, minutes = divmod(abs(mins), 60)
+    return f'{sign}{hours:02d}:{minutes:02d}'
 
 
 class _UtcWithDst(tzinfo):
@@ -291,7 +114,7 @@ utc_with_dst = _UtcWithDst()
 _timezone_cache = {}
 
 
-def create_timezone(offset):
+def create_timezone(offset: timedelta) -> timezone:
     """
     Returns a new datetime.timezone object with the given offset.
     Uses cached objects if possible.
@@ -661,9 +484,9 @@ class extended_datetime(object):
             string in Python 2
         """
 
-        s = '0000-%02d-%02d%c%02d:%02d:%02d' % (self.month, self.day, sep, self.hour, self.minute, self.second)
+        s = f'0000-{self.month:02d}-{self.day:02d}{sep}{self.hour:02d}:{self.minute:02d}:{self.second:02d}'
         if self.microsecond:
-            s += '.%06d' % self.microsecond
+            s += f'.{self.microsecond:06d}'
         return s + _format_offset(self.utcoffset())
 
     def replace(self, year=None, *args, **kwargs):

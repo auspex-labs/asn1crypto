@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
 ASN.1 type classes for certificate revocation lists (CRL). Exports the
 following items:
@@ -9,7 +10,6 @@ following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 import hashlib
 

@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
 ASN.1 type classes for various algorithms using in various aspects of public
 key cryptography. Exports the following items:
@@ -18,7 +19,6 @@ key cryptography. Exports the following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 from ._errors import unwrap
 from ._int import fill_width

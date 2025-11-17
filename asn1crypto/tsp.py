@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
 ASN.1 type classes for the time stamp protocol (TSP). Exports the following
 items:
@@ -15,7 +16,6 @@ asn1crypto.cms.CMSAttribute().
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 from .algos import DigestAlgorithm
 from .cms import (

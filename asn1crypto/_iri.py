@@ -8,30 +8,19 @@ the following items:
  - uri_to_iri()
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
-
 from encodings import idna  # noqa
+from urllib.parse import (
+    quote as urlquote,
+    unquote_to_bytes,
+    urlsplit,
+    urlunsplit,
+)
 import codecs
 import re
 import sys
 
 from ._errors import unwrap
 from ._types import byte_cls, str_cls, type_name, bytes_to_list, int_types
-
-if sys.version_info < (3,):
-    from urlparse import urlsplit, urlunsplit
-    from urllib import (
-        quote as urlquote,
-        unquote as unquote_to_bytes,
-    )
-
-else:
-    from urllib.parse import (
-        quote as urlquote,
-        unquote_to_bytes,
-        urlsplit,
-        urlunsplit,
-    )
 
 
 def iri_to_uri(value, normalize=False):
@@ -56,23 +45,8 @@ def iri_to_uri(value, normalize=False):
             type_name(value)
         ))
 
-    scheme = None
-    # Python 2.6 doesn't split properly is the URL doesn't start with http:// or https://
-    if sys.version_info < (2, 7) and not value.startswith('http://') and not value.startswith('https://'):
-        real_prefix = None
-        prefix_match = re.match('^[^:]*://', value)
-        if prefix_match:
-            real_prefix = prefix_match.group(0)
-            value = 'http://' + value[len(real_prefix):]
-        parsed = urlsplit(value)
-        if real_prefix:
-            value = real_prefix + value[7:]
-            scheme = _urlquote(real_prefix[:-3])
-    else:
-        parsed = urlsplit(value)
-
-    if scheme is None:
-        scheme = _urlquote(parsed.scheme)
+    parsed = urlsplit(value)
+    scheme = _urlquote(parsed.scheme)
     hostname = parsed.hostname
     if hostname is not None:
         hostname = hostname.encode('idna')

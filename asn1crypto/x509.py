@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
 ASN.1 type classes for X.509 certificates. Exports the following items:
 
@@ -13,8 +14,7 @@ ASN.1 type classes for X.509 certificates. Exports the following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
-
+from collections import OrderedDict
 from contextlib import contextmanager
 from encodings import idna  # noqa
 import hashlib
@@ -26,7 +26,6 @@ import unicodedata
 
 from ._errors import unwrap
 from ._iri import iri_to_uri, uri_to_iri
-from ._ordereddict import OrderedDict
 from ._types import type_name, str_cls, byte_cls, bytes_to_list
 from .algos import AlgorithmIdentifier, AnyAlgorithmIdentifier, DigestAlgorithm, SignedDigestAlgorithm
 from .core import (
@@ -861,7 +860,7 @@ class RelativeDistinguishedName(SetOf):
         output = []
         values = self._get_values(self)
         for key in sorted(values.keys()):
-            output.append('%s: %s' % (key, values[key]))
+            output.append(f'{key}: {values[key]}')
         # Unit separator is used here since the normalization process for
         # values moves any such character, and the keys are all dotted integers
         # or under_score_words
@@ -1129,7 +1128,7 @@ class Name(Choice):
             for key in keys:
                 value = data[key]
                 native_value = self._recursive_humanize(value)
-                to_join.append('%s: %s' % (key, native_value))
+                to_join.append(f'{key}: {native_value}')
 
             has_comma = False
             for element in to_join:

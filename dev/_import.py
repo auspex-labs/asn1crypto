@@ -1,27 +1,17 @@
 # coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
 
-import sys
+import importlib
+import importlib.abc
+import importlib.util
 import os
+import sys
 
 from . import build_root, package_name, package_root
 
-if sys.version_info < (3, 5):
-    import imp
-else:
-    import importlib
-    import importlib.abc
-    import importlib.util
+getcwd = os.getcwd
 
 
-if sys.version_info < (3,):
-    getcwd = os.getcwdu
-else:
-    getcwd = os.getcwd
-
-
-if sys.version_info >= (3, 5):
-    class ModCryptoMetaFinder(importlib.abc.MetaPathFinder):
+class ModCryptoMetaFinder(importlib.abc.MetaPathFinder):
         def setup(self):
             self.modules = {}
             sys.meta_path.insert(0, self)
@@ -57,8 +47,8 @@ if sys.version_info >= (3, 5):
                 submodule_search_locations=submodule_locations
             )
 
-    CUSTOM_FINDER = ModCryptoMetaFinder()
-    CUSTOM_FINDER.setup()
+CUSTOM_FINDER = ModCryptoMetaFinder()
+CUSTOM_FINDER.setup()
 
 
 def _import_from(mod, path, mod_dir=None, allow_error=False):
@@ -108,17 +98,12 @@ def _import_from(mod, path, mod_dir=None, allow_error=False):
         path = os.path.join(path, append)
 
     try:
-        if sys.version_info < (3, 5):
-            mod_info = imp.find_module(mod_dir, [path])
-            return imp.load_module(mod, *mod_info)
+        package = mod.split('.', 1)[0]
+        package_dir = full_mod.split('.', 1)[0]
+        package_path = os.path.join(path, package_dir)
+        CUSTOM_FINDER.add_module(package, package_path)
 
-        else:
-            package = mod.split('.', 1)[0]
-            package_dir = full_mod.split('.', 1)[0]
-            package_path = os.path.join(path, package_dir)
-            CUSTOM_FINDER.add_module(package, package_path)
-
-            return importlib.import_module(mod)
+        return importlib.import_module(mod)
 
     except ImportError:
         if allow_error:

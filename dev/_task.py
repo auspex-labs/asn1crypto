@@ -1,5 +1,4 @@
 # coding: utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 import ast
 import _ast
@@ -9,11 +8,7 @@ import sys
 from . import package_root, task_keyword_args
 from ._import import _import_from
 
-
-if sys.version_info < (3,):
-    byte_cls = str
-else:
-    byte_cls = bytes
+byte_cls = bytes
 
 
 def _list_tasks():
@@ -40,9 +35,7 @@ def _list_tasks():
 
         full_path = os.path.join(package_root, 'dev', fname)
         with open(full_path, 'rb') as f:
-            full_code = f.read()
-            if sys.version_info >= (3,):
-                full_code = full_code.decode('utf-8')
+            full_code = f.read().decode('utf-8')
 
         task_node = ast.parse(full_code, filename=full_path)
         for node in ast.iter_child_nodes(task_node):

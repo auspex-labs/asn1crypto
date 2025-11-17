@@ -46,10 +46,10 @@ ASN.1 type classes for universal types. Exports the following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
-
+from collections import OrderedDict
 from datetime import datetime, timedelta
 from fractions import Fraction
+from io import BytesIO
 import binascii
 import copy
 import math
@@ -58,21 +58,9 @@ import sys
 
 from . import _teletex_codec
 from ._errors import unwrap
-from ._ordereddict import OrderedDict
 from ._types import type_name, str_cls, byte_cls, int_types, chr_cls
 from .parser import _parse, _dump_header
 from .util import int_to_bytes, int_from_bytes, timezone, extended_datetime, create_timezone, utc_with_dst
-
-if sys.version_info <= (3,):
-    from cStringIO import StringIO as BytesIO
-
-    range = xrange  # noqa
-    _PY2 = True
-
-else:
-    from io import BytesIO
-
-    _PY2 = False
 
 
 _teletex_codec.register()
@@ -112,7 +100,7 @@ _OID_RE = re.compile(r'^\d+(\.\d+)*$')
 _SETUP_CLASSES = {}
 
 
-def load(encoded_data, strict=False):
+def load(encoded_data: bytes, strict: bool = False):
     """
     Loads a BER/DER-encoded byte string and construct a universal object based
     on the tag value:
@@ -230,7 +218,7 @@ class Asn1Value(object):
         """
 
         if not isinstance(encoded_data, byte_cls):
-            raise TypeError('encoded_data must be a byte string, not %s' % type_name(encoded_data))
+            raise TypeError(f'encoded_data must be a byte string, not {type_name(encoded_data)}')
 
         spec = None
         if cls.tag is not None:
@@ -447,17 +435,11 @@ class Asn1Value(object):
 
     def __str__(self):
         """
-        Since str is different in Python 2 and 3, this calls the appropriate
-        method, __unicode__() or __bytes__()
-
         :return:
             A unicode string
         """
 
-        if _PY2:
-            return self.__bytes__()
-        else:
-            return self.__unicode__()
+        return self.__unicode__()
 
     def __repr__(self):
         """
@@ -465,10 +447,7 @@ class Asn1Value(object):
             A unicode string
         """
 
-        if _PY2:
-            return '<%s %s b%s>' % (type_name(self), id(self), repr(self.dump()))
-        else:
-            return '<%s %s %s>' % (type_name(self), id(self), repr(self.dump()))
+        return f'<{type_name(self)} {id(self)} {self.dump()!r}>'
 
     def __bytes__(self):
         """
@@ -624,10 +603,7 @@ class Asn1Value(object):
         elif hasattr(self, 'chosen'):
             self.chosen.debug(nest_level + 2)
         else:
-            if _PY2 and isinstance(self.native, byte_cls):
-                print('%s    Native: b%s' % (prefix, repr(self.native)))
-            else:
-                print('%s    Native: %s' % (prefix, self.native))
+            print(f'{prefix}    Native: {self.native}')
 
     def dump(self, force=False):
         """
@@ -1074,7 +1050,7 @@ class Choice(Asn1Value):
         """
 
         if not isinstance(encoded_data, byte_cls):
-            raise TypeError('encoded_data must be a byte string, not %s' % type_name(encoded_data))
+            raise TypeError(f'encoded_data must be a byte string, not {type_name(encoded_data)}')
 
         value, _ = _parse_build(encoded_data, spec=cls, spec_params=kwargs, strict=strict)
         return value
@@ -1318,7 +1294,7 @@ class Choice(Asn1Value):
             A unicode string of a human-friendly representation of the class and tag
         """
 
-        return '[%s %s]' % (CLASS_NUM_TO_NAME_MAP[class_].upper(), tag)
+        return f'[{CLASS_NUM_TO_NAME_MAP[class_].upper()} {tag}]'
 
     def _copy(self, other, copy_func):
         """
@@ -1440,17 +1416,11 @@ class Concat(object):
 
     def __str__(self):
         """
-        Since str is different in Python 2 and 3, this calls the appropriate
-        method, __unicode__() or __bytes__()
-
         :return:
             A unicode string
         """
 
-        if _PY2:
-            return self.__bytes__()
-        else:
-            return self.__unicode__()
+        return self.__unicode__()
 
     def __bytes__(self):
         """
@@ -1473,7 +1443,7 @@ class Concat(object):
             A unicode string
         """
 
-        return '<%s %s %s>' % (type_name(self), id(self), repr(self.dump()))
+        return f'<{type_name(self)} {id(self)} {self.dump()!r}>'
 
     def __copy__(self):
         """
@@ -1542,8 +1512,8 @@ class Concat(object):
         """
 
         prefix = '  ' * nest_level
-        print('%s%s Object #%s' % (prefix, type_name(self), id(self)))
-        print('%s  Children:' % (prefix,))
+        print(f'{prefix}{type_name(self)} Object #{id(self)}')
+        print(f'{prefix}  Children:')
         for child in self._children:
             child.debug(nest_level + 2)
 
@@ -2019,7 +1989,7 @@ class _IntegerBitString(object):
             # return an empty chunk, for cases like \x23\x80\x00\x00
             return []
 
-        unused_bits_len = ord(self.contents[0]) if _PY2 else self.contents[0]
+        unused_bits_len = self.contents[0]
         value = int_from_bytes(self.contents[1:])
         bits = (len(self.contents) - 1) * 8
 
@@ -2450,7 +2420,7 @@ class OctetBitString(Constructable, Castable, Primitive):
             List with one tuple, consisting of a byte string and an integer (unused bits)
         """
 
-        unused_bits_len = ord(self.contents[0]) if _PY2 else self.contents[0]
+        unused_bits_len = self.contents[0]
         if not unused_bits_len:
             return [(self.contents[1:], ())]
 
@@ -2463,11 +2433,11 @@ class OctetBitString(Constructable, Castable, Primitive):
             raise ValueError('Bit string has {0} unused bits'.format(unused_bits_len))
 
         mask = (1 << unused_bits_len) - 1
-        last_byte = ord(self.contents[-1]) if _PY2 else self.contents[-1]
+        last_byte = self.contents[-1]
 
         # zero out the unused bits in the last byte.
         zeroed_byte = last_byte & ~mask
-        value = self.contents[1:-1] + (chr(zeroed_byte) if _PY2 else bytes((zeroed_byte,)))
+        value = self.contents[1:-1] + bytes((zeroed_byte,))
 
         unused_bits = _int_to_bit_tuple(last_byte & mask, unused_bits_len)
 
@@ -2949,7 +2919,7 @@ class ParsableOctetBitString(ParsableOctetString):
             A byte string
         """
 
-        unused_bits_len = ord(self.contents[0]) if _PY2 else self.contents[0]
+        unused_bits_len = self.contents[0]
         if unused_bits_len:
             raise ValueError('ParsableOctetBitString should have no unused bits')
 
@@ -3168,8 +3138,6 @@ class ObjectIdentifier(Primitive, ValueMap):
 
             part = 0
             for byte in self.contents:
-                if _PY2:
-                    byte = ord(byte)
                 part = part * 128
                 part += byte & 127
                 # Last byte in subidentifier has the eighth bit set to 0
@@ -4120,7 +4088,7 @@ class Sequence(Asn1Value):
         for field_name in self:
             child = self._lazy_child(self._field_map[field_name])
             if child is not VOID:
-                print('%s    Field "%s"' % (prefix, field_name))
+                print(f'{prefix}    Field "{field_name}"')
                 child.debug(nest_level + 3)
 
     def dump(self, force=False):
@@ -5044,8 +5012,6 @@ class UTCTime(AbstractTime):
                 raise ValueError('Year of the UTCTime is not in range [1950, 2049], use GeneralizedTime instead')
 
             value = value.strftime('%y%m%d%H%M%SZ')
-            if _PY2:
-                value = value.decode('ascii')
 
         AbstractString.set(self, value)
         # Set it to None and let the class take care of converting the next
@@ -5143,8 +5109,6 @@ class GeneralizedTime(AbstractTime):
                 fraction = ''
 
             value = value.strftime('%Y%m%d%H%M%S') + fraction + 'Z'
-            if _PY2:
-                value = value.decode('ascii')
 
         AbstractString.set(self, value)
         # Set it to None and let the class take care of converting the next
@@ -5236,9 +5200,9 @@ def _basic_debug(prefix, self):
         The object to print the debugging information about
     """
 
-    print('%s%s Object #%s' % (prefix, type_name(self), id(self)))
+    print(f'{prefix}{type_name(self)} Object #{id(self)}')
     if self._header:
-        print('%s  Header: 0x%s' % (prefix, binascii.hexlify(self._header or b'').decode('utf-8')))
+        print(f'{prefix}  Header: 0x{binascii.hexlify(self._header or b"").decode("utf-8")}')
 
     has_header = self.method is not None and self.class_ is not None and self.tag is not None
     if has_header:
@@ -5247,28 +5211,21 @@ def _basic_debug(prefix, self):
 
     if self.explicit is not None:
         for class_, tag in self.explicit:
-            print(
-                '%s    %s tag %s (explicitly tagged)' %
-                (
-                    prefix,
-                    CLASS_NUM_TO_NAME_MAP.get(class_),
-                    tag
-                )
-            )
+            print(f'{prefix}    {CLASS_NUM_TO_NAME_MAP.get(class_)} tag {tag} (explicitly tagged)')
         if has_header:
-            print('%s      %s %s %s' % (prefix, method_name, class_name, self.tag))
+            print(f'{prefix}      {method_name} {class_name} {self.tag}')
 
     elif self.implicit:
         if has_header:
-            print('%s    %s %s tag %s (implicitly tagged)' % (prefix, method_name, class_name, self.tag))
+            print(f'{prefix}    {method_name} {class_name} tag {self.tag} (implicitly tagged)')
 
     elif has_header:
-        print('%s    %s %s tag %s' % (prefix, method_name, class_name, self.tag))
+        print(f'{prefix}    {method_name} {class_name} tag {self.tag}')
 
     if self._trailer:
-        print('%s  Trailer: 0x%s' % (prefix, binascii.hexlify(self._trailer or b'').decode('utf-8')))
+        print(f'{prefix}  Trailer: 0x{binascii.hexlify(self._trailer or b"").decode("utf-8")}')
 
-    print('%s  Data: 0x%s' % (prefix, binascii.hexlify(self.contents or b'').decode('utf-8')))
+    print(f'{prefix}  Data: 0x{binascii.hexlify(self.contents or b"").decode("utf-8")}')
 
 
 def _tag_type_to_explicit_implicit(params):

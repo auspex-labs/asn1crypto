@@ -1,5 +1,30 @@
 # changelog
 
+## 2.0.0
+
+### BREAKING CHANGES
+
+ - **Dropped support for Python 2.6, 2.7, and Python 3.0-3.8**
+ - **Minimum required version is now Python 3.9**
+ - Removed all Python 2 compatibility code (~370+ lines removed)
+ - Removed `_ordereddict` module - use `collections.OrderedDict` directly
+ - Simplified `_types` module for Python 3.9+ only
+ - Removed all `from __future__` imports (no longer needed in Python 3.9+)
+ - Removed `_PY2` conditionals throughout codebase
+ - Updated to use Python 3.9+ features:
+   - Native `int.to_bytes()` and `int.from_bytes()` methods
+   - Native `datetime.timezone` class
+   - Direct byte indexing (no `ord()` needed)
+   - Native `collections.OrderedDict`
+   - `urllib.parse` only (no legacy `urlparse`/`urllib`)
+
+### Benefits
+
+ - Simpler, cleaner codebase
+ - Easier maintenance (no dual code paths)
+ - Better performance with native Python 3 operations
+ - Foundation for using modern Python features (f-strings, type hints, etc.)
+
 ## 1.5.1
 
  - Handle RSASSA-PSS in `keys.PrivateKeyInfo.bit_size` and

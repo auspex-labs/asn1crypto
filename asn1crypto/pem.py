@@ -9,22 +9,24 @@ Encoding DER to PEM and decoding PEM to DER. Exports the following items:
 
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 import base64
 import re
 import sys
+from io import BytesIO
 
 from ._errors import unwrap
 from ._types import type_name as _type_name, str_cls, byte_cls
 
-if sys.version_info < (3,):
-    from cStringIO import StringIO as BytesIO
-else:
-    from io import BytesIO
+# Maximum number of base64 lines in a PEM block (~6MB base64 = ~4.5MB decoded)
+_MAX_PEM_LINES = 100000
+# Maximum number of headers in a PEM block
+_MAX_HEADERS = 50
+# Maximum size of a single PEM header line
+_MAX_HEADER_SIZE = 1024
 
 
-def detect(byte_string):
+def detect(byte_string: bytes) -> bool:
     """
     Detect if a byte string seems to contain a PEM-encoded block
 
@@ -38,16 +40,15 @@ def detect(byte_string):
 
     if not isinstance(byte_string, byte_cls):
         raise TypeError(unwrap(
+            f'''
+            byte_string must be a byte string, not {_type_name(byte_string)}
             '''
-            byte_string must be a byte string, not %s
-            ''',
-            _type_name(byte_string)
         ))
 
     return byte_string.find(b'-----BEGIN') != -1 or byte_string.find(b'---- BEGIN') != -1
 
 
-def armor(type_name, der_bytes, headers=None):
+def armor(type_name: str, der_bytes: bytes, headers=None) -> bytes:
     """
     Armors a DER-encoded byte string in PEM
 
@@ -69,17 +70,16 @@ def armor(type_name, der_bytes, headers=None):
 
     if not isinstance(der_bytes, byte_cls):
         raise TypeError(unwrap(
+            f'''
+            der_bytes must be a byte string, not {_type_name(der_bytes)}
             '''
-            der_bytes must be a byte string, not %s
-            ''' % _type_name(der_bytes)
         ))
 
     if not isinstance(type_name, str_cls):
         raise TypeError(unwrap(
+            f'''
+            type_name must be a unicode string, not {_type_name(type_name)}
             '''
-            type_name must be a unicode string, not %s
-            ''',
-            _type_name(type_name)
         ))
 
     type_name = type_name.upper().encode('ascii')
@@ -129,16 +129,15 @@ def _unarmor(pem_bytes):
 
     if not isinstance(pem_bytes, byte_cls):
         raise TypeError(unwrap(
+            f'''
+            pem_bytes must be a byte string, not {_type_name(pem_bytes)}
             '''
-            pem_bytes must be a byte string, not %s
-            ''',
-            _type_name(pem_bytes)
         ))
 
     # Valid states include: "trash", "headers", "body"
     state = 'trash'
     headers = {}
-    base64_data = b''
+    base64_lines = []
     object_type = None
 
     found_start = False
@@ -164,6 +163,10 @@ def _unarmor(pem_bytes):
             if line.find(b':') == -1:
                 state = 'body'
             else:
+                if len(headers) >= _MAX_HEADERS:
+                    raise ValueError(f'PEM block exceeds maximum of {_MAX_HEADERS} headers')
+                if len(line) > _MAX_HEADER_SIZE:
+                    raise ValueError(f'PEM header line exceeds maximum size of {_MAX_HEADER_SIZE} bytes')
                 decoded_line = line.decode('ascii')
                 name, value = decoded_line.split(':', 1)
                 headers[name] = value.strip()
@@ -171,18 +174,21 @@ def _unarmor(pem_bytes):
 
         if state == 'body':
             if line[0:5] in (b'-----', b'---- '):
+                base64_data = b''.join(base64_lines)
                 der_bytes = base64.b64decode(base64_data)
 
                 yield (object_type, headers, der_bytes)
 
                 state = 'trash'
                 headers = {}
-                base64_data = b''
+                base64_lines = []
                 object_type = None
                 found_end = True
                 continue
 
-            base64_data += line
+            if len(base64_lines) >= _MAX_PEM_LINES:
+                raise ValueError(f'PEM block exceeds maximum size of {_MAX_PEM_LINES} lines')
+            base64_lines.append(line)
 
     if not found_start or not found_end:
         raise ValueError(unwrap(
@@ -193,7 +199,7 @@ def _unarmor(pem_bytes):
         ))
 
 
-def unarmor(pem_bytes, multiple=False):
+def unarmor(pem_bytes: bytes, multiple: bool = False):
     """
     Convert a PEM-encoded byte string into a DER-encoded byte string
 

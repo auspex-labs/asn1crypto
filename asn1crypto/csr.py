@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
 ASN.1 type classes for certificate signing requests (CSR). Exports the
 following items:
@@ -9,7 +10,6 @@ following items:
 Other type classes are defined that help compose the types listed above.
 """
 
-from __future__ import unicode_literals, division, absolute_import, print_function
 
 from .algos import SignedDigestAlgorithm
 from .core import (
