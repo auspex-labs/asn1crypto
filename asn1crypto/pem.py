@@ -18,6 +18,13 @@ from io import BytesIO
 from ._errors import unwrap
 from ._types import type_name as _type_name, str_cls, byte_cls
 
+# Maximum number of base64 lines in a PEM block (~6MB base64 = ~4.5MB decoded)
+_MAX_PEM_LINES = 100000
+# Maximum number of headers in a PEM block
+_MAX_HEADERS = 50
+# Maximum size of a single PEM header line
+_MAX_HEADER_SIZE = 1024
+
 
 def detect(byte_string: bytes) -> bool:
     """
@@ -130,7 +137,7 @@ def _unarmor(pem_bytes):
     # Valid states include: "trash", "headers", "body"
     state = 'trash'
     headers = {}
-    base64_data = b''
+    base64_lines = []
     object_type = None
 
     found_start = False
@@ -156,6 +163,10 @@ def _unarmor(pem_bytes):
             if line.find(b':') == -1:
                 state = 'body'
             else:
+                if len(headers) >= _MAX_HEADERS:
+                    raise ValueError(f'PEM block exceeds maximum of {_MAX_HEADERS} headers')
+                if len(line) > _MAX_HEADER_SIZE:
+                    raise ValueError(f'PEM header line exceeds maximum size of {_MAX_HEADER_SIZE} bytes')
                 decoded_line = line.decode('ascii')
                 name, value = decoded_line.split(':', 1)
                 headers[name] = value.strip()
@@ -163,18 +174,21 @@ def _unarmor(pem_bytes):
 
         if state == 'body':
             if line[0:5] in (b'-----', b'---- '):
+                base64_data = b''.join(base64_lines)
                 der_bytes = base64.b64decode(base64_data)
 
                 yield (object_type, headers, der_bytes)
 
                 state = 'trash'
                 headers = {}
-                base64_data = b''
+                base64_lines = []
                 object_type = None
                 found_end = True
                 continue
 
-            base64_data += line
+            if len(base64_lines) >= _MAX_PEM_LINES:
+                raise ValueError(f'PEM block exceeds maximum size of {_MAX_PEM_LINES} lines')
+            base64_lines.append(line)
 
     if not found_start or not found_end:
         raise ValueError(unwrap(

@@ -19,6 +19,7 @@ from .util import int_from_bytes, int_to_bytes
 
 _INSUFFICIENT_DATA_MESSAGE = 'Insufficient data - {} bytes requested but only {} available'
 _MAX_DEPTH = 10
+_MAX_TAG_OCTETS = 4  # Limit tag encoding to 4 bytes (supports tags up to 268,435,455)
 
 
 def emit(class_: int, method: int, tag: int, contents: bytes) -> bytes:
@@ -178,7 +179,11 @@ def _parse(encoded_data, data_len, pointer=0, lengths_only=False, depth=0):
     # Base 128 length using 8th bit as continuation indicator
     if tag == 31:
         tag = 0
+        tag_octets = 0
         while True:
+            tag_octets += 1
+            if tag_octets > _MAX_TAG_OCTETS:
+                raise ValueError(f'Tag encoding exceeds maximum length of {_MAX_TAG_OCTETS} octets')
             if data_len < pointer + 1:
                 raise ValueError(_INSUFFICIENT_DATA_MESSAGE.format(1, data_len - pointer))
             num = encoded_data[pointer]
